@@ -1,9 +1,0 @@
-{
-    "name": "referer-changer", 
-    "license": "MPL 2.0", 
-    "author": "", 
-    "version": "0.1", 
-    "fullName": "Referer Changer", 
-    "id": "jid1-Wfhvqsi1Z5IHzQ", 
-    "description": "Change http referer header"
-}
