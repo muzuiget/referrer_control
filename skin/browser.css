@@ -1,0 +1,19 @@
+/* in browser window toolbar */
+
+toolbar #referrercontrol-button {
+    list-style-image: url("chrome://referrercontrol/skin/icon24.png");
+}
+
+toolbar[iconsize="small"] #referrercontrol-button {
+    list-style-image: url("chrome://referrercontrol/skin/icon16.png") !important;
+}
+
+toolbar #referrercontrol-button[disabled="yes"] {
+    filter: url("chrome://mozapps/skin/extensions/extensions.svg#greyscale");
+}
+
+/* in customization panel */
+
+#referrercontrol-button:not([type="menu-button"]) {
+    list-style-image: url("chrome://referrercontrol/skin/icon24.png") !important;
+}

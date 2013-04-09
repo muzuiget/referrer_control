@@ -1,0 +1,5 @@
+content  referrercontrol  content/
+skin     referrercontrol  classic/1.0  skin/
+locale   referrercontrol  en-US        locale/en-US/
+locale   referrercontrol  zh-CN        locale/zh-CN/
+locale   referrercontrol  zh-TW        locale/zh-TW/

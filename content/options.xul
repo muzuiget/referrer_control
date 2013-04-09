@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!DOCTYPE window SYSTEM "chrome://referrercontrol/locale/options.dtd">
+
+<prefwindow
+    id="referrercontrol"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<prefpane id="main" flex="1">
+
+    <preferences>
+        <preference id="ignoreSameDomains" type="bool"
+                    name="extensions.referrercontrol.ignoreSameDomains"/>
+        <preference id="strictSameDomains" type="bool"
+                    name="extensions.referrercontrol.strictSameDomains"/>
+        <preference id="globalPolicy" type="string"
+                    name="extensions.referrercontrol.globalPolicy"/>
+        <preference id="customPolicies" type="string"
+                    name="extensions.referrercontrol.customPolicies"/>
+    </preferences>
+
+    <hbox align="center">
+        <checkbox label="&IgnoreSameDomains;" checked="true"
+                  preference="ignoreSameDomains"/>
+        <checkbox label="&StrictSameDomains;" checked="false"
+                  preference="strictSameDomains"/>
+    </hbox>
+
+    <hbox align="center">
+    <label value="&GlobalPolicy;" />
+    <menulist flex="1" preference="globalPolicy">
+        <menupopup>
+            <menuitem label="&Policy.Skip;" value="skip"
+                      tooltiptext="&Policy.Skip.Tooltip;"/>
+            <menuitem label="&Policy.Empty;" value="empty"
+                      tooltiptext="&Policy.Empty.Tooltip;"/>
+            <menuitem label="&Policy.SourceHost;" value="source host"
+                      tooltiptext="&Policy.SourceHost.Tooltip;"/>
+            <menuitem label="&Policy.SourceDomain;" value="source domain"
+                      tooltiptext="&Policy.SourceDomain.Tooltip;"/>
+            <menuitem label="&Policy.TargetHost;" value="target host"
+                      tooltiptext="&Policy.TargetHost.Tooltip;"/>
+            <menuitem label="&Policy.TargetDomain;" value="target domain"
+                      tooltiptext="&Policy.TargetDomain.Tooltip;"/>
+        </menupopup>
+    </menulist>
+    </hbox>
+
+    <label value="&CustomPolicies;" />
+    <textbox flex="1" multiline="true" wrap="off" rows="12" cols="54"
+             style="font-family: 'DejaVu Sans Mono',monospace;"
+             preference="customPolicies" />
+
+</prefpane>
+</prefwindow>
