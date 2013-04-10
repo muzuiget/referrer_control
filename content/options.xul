@@ -12,8 +12,8 @@
                     name="extensions.referrercontrol.ignoreSameDomains"/>
         <preference id="strictSameDomains" type="bool"
                     name="extensions.referrercontrol.strictSameDomains"/>
-        <preference id="globalPolicy" type="string"
-                    name="extensions.referrercontrol.globalPolicy"/>
+        <preference id="defaultPolicy" type="string"
+                    name="extensions.referrercontrol.defaultPolicy"/>
         <preference id="customPolicies" type="string"
                     name="extensions.referrercontrol.customPolicies"/>
     </preferences>
@@ -26,20 +26,20 @@
     </hbox>
 
     <hbox align="center">
-    <label value="&GlobalPolicy;" />
-    <menulist flex="1" preference="globalPolicy">
+    <label value="&DefaultPolicy;" />
+    <menulist flex="1" preference="defaultPolicy">
         <menupopup>
             <menuitem label="&Policy.Skip;" value="skip"
                       tooltiptext="&Policy.Skip.Tooltip;"/>
             <menuitem label="&Policy.Empty;" value="empty"
                       tooltiptext="&Policy.Empty.Tooltip;"/>
-            <menuitem label="&Policy.SourceHost;" value="source host"
+            <menuitem label="&Policy.SourceHost;" value="sourcehost"
                       tooltiptext="&Policy.SourceHost.Tooltip;"/>
-            <menuitem label="&Policy.SourceDomain;" value="source domain"
+            <menuitem label="&Policy.SourceDomain;" value="sourcedomain"
                       tooltiptext="&Policy.SourceDomain.Tooltip;"/>
-            <menuitem label="&Policy.TargetHost;" value="target host"
+            <menuitem label="&Policy.TargetHost;" value="targethost"
                       tooltiptext="&Policy.TargetHost.Tooltip;"/>
-            <menuitem label="&Policy.TargetDomain;" value="target domain"
+            <menuitem label="&Policy.TargetDomain;" value="targetdomain"
                       tooltiptext="&Policy.TargetDomain.Tooltip;"/>
         </menupopup>
     </menulist>

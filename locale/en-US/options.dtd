@@ -1,7 +1,6 @@
 <!ENTITY IgnoreSameDomains "Ignore same domains">
 <!ENTITY StrictSameDomains "Treat subdomains as different domains">
-<!ENTITY TabPolicy "Tab policy:">
-<!ENTITY GlobalPolicy "Global policy:">
+<!ENTITY DefaultPolicy "Default policy:">
 <!ENTITY CustomPolicies "Custom site-specific policies:">
 
 <!ENTITY Policy.Skip "skip">
