@@ -98,7 +98,11 @@ let WindowManager = {
     run: function(func) {
         let enumerator = WW.getWindowEnumerator();
         while (enumerator.hasMoreElements()) {
-            func(enumerator.getNext());
+            try {
+                func(enumerator.getNext());
+            } catch(error) {
+                log(error)
+            }
         }
     },
     addListener: function(listener) {
@@ -533,6 +537,9 @@ let ReferrerControl = {
     refreshButton: function() {
         let {actived, defaultPolicy} = this.config;
         WindowManager.run(function(window) {
+            if (window.location.href !== BROWSER_URI) {
+                return;
+            }
             let document = window.document;
             let button = document.getElementById('referrercontrol-button');
             if (actived) {
