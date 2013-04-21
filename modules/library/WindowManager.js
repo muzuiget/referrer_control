@@ -6,14 +6,16 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import('resource://gre/modules/Services.jsm');
 
 const BROWSER_URI = 'chrome://browser/content/browser.xul';
+const OBSERVER_NAME = 'chrome-document-global-created';
 const windowWatcher = Services.ww;
+const obsService = Services.obs;
 const log = function() { dump(Array.slice(arguments).join(' ') + '\n'); }
 
 let WindowManager = {
 
     listeners: [],
-    observe: function(window, topic) {
-        if (topic !== 'domwindowopened') {
+    observe: function(window, topic, data) {
+        if (topic !== OBSERVER_NAME) {
             return;
         }
         let $this = this;
@@ -21,7 +23,7 @@ let WindowManager = {
             for (let listener of $this.listeners) {
                 listener(window);
             }
-        }, false);
+        });
     },
 
     initialized: false,
@@ -30,7 +32,7 @@ let WindowManager = {
             return;
         }
         this.listeners = [];
-        windowWatcher.registerNotification(this);
+        obsService.addObserver(this, OBSERVER_NAME, false);
         this.initialized = true;
     },
     destory: function() {
@@ -38,17 +40,16 @@ let WindowManager = {
             return;
         }
         this.listeners = [];
-        windowWatcher.unregisterNotification(this);
+        obsService.removeObserver(this, OBSERVER_NAME, false);
         this.initialized = false;
     },
 
-    run: function(func) {
-        let enumerator = windowWatcher.getWindowEnumerator();
-        while (enumerator.hasMoreElements()) {
+    apply: function(func) {
+        for (let window of this.getAllWindows()) {
             try {
-                func(enumerator.getNext());
+                func(window);
             } catch(error) {
-                log(error)
+                log(error);
             }
         }
     },
@@ -62,6 +63,39 @@ let WindowManager = {
         }
     },
 
+    getAllWindows: function() {
+        let windows = [];
+        let topWindows = this.getTopWindows();
+        windows = windows.concat(topWindows);
+
+        for (let topWindow of topWindows) {
+            if (!this.isBrowser(topWindow)) {
+                continue;
+            }
+            let tabWindows = this.getTabWindows(topWindow);
+            windows = windows.concat(tabWindows);
+        }
+        return windows;
+    },
+    getTopWindows: function() {
+        let windows = [];
+        let enumerator = windowWatcher.getWindowEnumerator();
+        while (enumerator.hasMoreElements()) {
+            windows.push(enumerator.getNext());
+        }
+        return windows;
+    },
+    getTabWindows: function(topWindow) {
+        let windows = [];
+        for (let browser of topWindow.gBrowser.browsers) {
+            let window = browser.contentWindow;
+            if (!this.isChrome(window)) {
+                continue;
+            }
+            windows.push(window);
+        }
+        return windows;
+    },
 
     getUid: function(window) {
         return window.QueryInterface(Ci.nsIInterfaceRequestor)
@@ -71,5 +105,8 @@ let WindowManager = {
 
     isBrowser: function(window) {
         return window.location.href === BROWSER_URI;
+    },
+    isChrome: function(window) {
+        return window.location.href.startsWith('chrome://');
     }
 };

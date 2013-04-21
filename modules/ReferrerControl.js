@@ -13,13 +13,13 @@ Cu.import('resource://referrercontrol/library/Preferences.js');
 Cu.import('resource://referrercontrol/library/ChannelManager.js');
 Cu.import('resource://referrercontrol/library/Utils.js');
 
-let ReferrerControl = {
+const STYLE_URI = 'chrome://referrercontrol/skin/browser.css';
+const PREFERENCE_BRANCH = 'extensions.referrercontrol.';
+const NAMES = ['skip', 'empty',
+               'sourcehost', 'sourcedomain',
+               'targethost', 'targetdomain'];
 
-    STYLE_URI: 'chrome://referrercontrol/skin/browser.css',
-    PREFERENCE_BRANCH: 'extensions.referrercontrol.',
-    NAMES: ['skip', 'empty',
-            'sourcehost', 'sourcedomain',
-            'targethost', 'targetdomain'],
+let ReferrerControl = {
 
     config: {
         activated: false,
@@ -48,6 +48,7 @@ let ReferrerControl = {
         if (topic === 'nsPref:changed') {
             this.loadPreferences();
             this.refreshButton();
+            this.refreshRequestListener();
             return;
         }
 
@@ -73,14 +74,14 @@ let ReferrerControl = {
     },
 
     initialize: function() {
-        this.preferences = Preferences(this.PREFERENCE_BRANCH);
+        this.preferences = Preferences(PREFERENCE_BRANCH);
         this.loadPreferences();
         this.refreshRequestListener();
 
-        StyleManager.load(ReferrerControl.STYLE_URI);
+        StyleManager.load(STYLE_URI);
         WindowManager.initialize();
-        WindowManager.run(ReferrerControl.onWindowLoad);
-        WindowManager.addListener(ReferrerControl.onWindowLoad);
+        WindowManager.apply(this.onWindowLoad);
+        WindowManager.addListener(this.onWindowLoad);
     },
     destory: function() {
         this.preferences.removeObserver(this);
@@ -91,7 +92,7 @@ let ReferrerControl = {
         this.saveConfig();
 
         StyleManager.unloadAll();
-        WindowManager.run(ReferrerControl.onWindowUnload);
+        WindowManager.apply(this.onWindowUnload);
         WindowManager.destory();
     },
 
@@ -170,11 +171,10 @@ let ReferrerControl = {
         };
 
         let createMenuitems = function() {
-            let names = $this.NAMES;
             let {defaultPolicy} = $this.config;
 
             let menuitems = [];
-            for (let name of names) {
+            for (let name of NAMES) {
                 let attrs = {
                     label: name,
                     value: name,
@@ -222,20 +222,24 @@ let ReferrerControl = {
     },
 
     nameToCode: function(name) {
-        return this.NAMES.indexOf(name);
+        return NAMES.indexOf(name);
     },
     codeToName: function(code) {
-        return this.NAMES[code];
+        return NAMES[code];
     },
 
     refreshButton: function() {
         let {activated, defaultPolicy} = this.config;
-        WindowManager.run(function(window) {
+        WindowManager.apply(function(window) {
             if (!WindowManager.isBrowser(window)) {
                 return;
             }
             let document = window.document;
             let button = document.getElementById('referrercontrol-button');
+            if (!button) {
+                return;
+            }
+
             if (activated) {
                 button.removeAttribute('disabled');
             } else {
@@ -336,6 +340,7 @@ let ReferrerControl = {
         return channel.referrer.scheme + '://' + value + '/';
     },
 
+    // WindowManager listener callbacks
     get onWindowLoad() {
         let $this = this;
         return function(window) {
@@ -351,14 +356,16 @@ let ReferrerControl = {
             }
         }
     },
-    onWindowUnload: function(window) {
-        if (!WindowManager.isBrowser(window)) {
-            return;
-        }
-        try {
-            ToolbarManager.removeWidget(window, 'referrercontrol-button');
-        } catch(error) {
-            log(error);
+    get onWindowUnload() {
+        return function(window) {
+            if (!WindowManager.isBrowser(window)) {
+                return;
+            }
+            try {
+                ToolbarManager.removeWidget(window, 'referrercontrol-button');
+            } catch(error) {
+                log(error);
+            }
         }
     }
 
