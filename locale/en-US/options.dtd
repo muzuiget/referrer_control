@@ -3,15 +3,9 @@
 <!ENTITY DefaultPolicy "Default policy:">
 <!ENTITY CustomPolicies "Custom site-specific policies:">
 
-<!ENTITY Policy.Skip "skip">
 <!ENTITY Policy.Skip.Tooltip "Don't change it, keep it">
-<!ENTITY Policy.Empty "empty">
 <!ENTITY Policy.Empty.Tooltip "Change it to emtpy, remove it">
-<!ENTITY Policy.SourceHost "source host">
 <!ENTITY Policy.SourceHost.Tooltip "Change it to source url's host">
-<!ENTITY Policy.SourceDomain "source domain">
 <!ENTITY Policy.SourceDomain.Tooltip "Change it to source url's root domain">
-<!ENTITY Policy.TargetHost "target host">
 <!ENTITY Policy.TargetHost.Tooltip "Change it to target url's host">
-<!ENTITY Policy.TargetDomain "target domain">
 <!ENTITY Policy.TargetDomain.Tooltip "Change it to target url's root domain">

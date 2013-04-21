@@ -3,15 +3,9 @@
 <!ENTITY DefaultPolicy "默认策略：">
 <!ENTITY CustomPolicies "针对特定网站策略：">
 
-<!ENTITY Policy.Skip "跳过">
 <!ENTITY Policy.Skip.Tooltip "不要修改，忽略之">
-<!ENTITY Policy.Empty "清空">
 <!ENTITY Policy.Empty.Tooltip "清空，也就是删除">
-<!ENTITY Policy.SourceHost "来源主机">
 <!ENTITY Policy.SourceHost.Tooltip "修改为来源地址的主机名">
-<!ENTITY Policy.SourceDomain "来源域名">
 <!ENTITY Policy.SourceDomain.Tooltip "修改为来源地址的根域名">
-<!ENTITY Policy.TargetHost "目标主机">
 <!ENTITY Policy.TargetHost.Tooltip "修改为目标地址的主机名">
-<!ENTITY Policy.TargetDomain "目标域名">
 <!ENTITY Policy.TargetDomain.Tooltip "修改为目标地址的根域名">
