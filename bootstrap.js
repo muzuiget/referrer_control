@@ -341,7 +341,7 @@ let ReferrerControl = {
             'targethost', 'targetdomain'],
 
     config: {
-        actived: false,
+        activated: false,
         isFirstRun: true,
         ignoreSameDomains: true,
         strictSameDomains: false,
@@ -376,7 +376,7 @@ let ReferrerControl = {
         let config = {};
         pref.removeObserver(this);
 
-        config.actived = pref.getBool('actived', false);
+        config.activated = pref.getBool('activated', false);
         config.firstRun = pref.getBool('firstRun', true);
         config.ignoreSameDomains = pref.getBool('ignoreSameDomains', true);
         config.strictSameDomains = pref.getBool('strictSameDomains', false);
@@ -466,7 +466,7 @@ let ReferrerControl = {
                 label: 'Referrer Control',
                 tooltiptext: 'Referrer Control'
             };
-            if (!$this.config.actived) {
+            if (!$this.config.activated) {
                 attrs.disabled = 'yes';
             }
             return Widget(window, 'toolbarbutton', attrs);
@@ -507,11 +507,11 @@ let ReferrerControl = {
         return button;
     },
 
-    toggle: function(actived) {
-        if (actived === undefined) {
-            actived = !this.config.actived;
+    toggle: function(activated) {
+        if (activated === undefined) {
+            activated = !this.config.activated;
         }
-        this.config.actived = actived;
+        this.config.activated = activated;
         this.saveConfig();
         this.refreshButton();
         this.refreshRequestListener();
@@ -519,10 +519,10 @@ let ReferrerControl = {
 
     saveConfig: function() {
         let pref = this.preferences;
-        let {actived, defaultPolicy} = this.config;
+        let {activated, defaultPolicy} = this.config;
 
         pref.removeObserver(this);
-        pref.setBool('actived', actived);
+        pref.setBool('activated', activated);
         pref.setString('defaultPolicy', defaultPolicy);
         pref.addObserver(this);
     },
@@ -535,14 +535,14 @@ let ReferrerControl = {
     },
 
     refreshButton: function() {
-        let {actived, defaultPolicy} = this.config;
+        let {activated, defaultPolicy} = this.config;
         WindowManager.run(function(window) {
             if (window.location.href !== BROWSER_URI) {
                 return;
             }
             let document = window.document;
             let button = document.getElementById('referrercontrol-button');
-            if (actived) {
+            if (activated) {
                 button.removeAttribute('disabled');
             } else {
                 button.setAttribute('disabled', 'yes');
@@ -557,7 +557,7 @@ let ReferrerControl = {
 
     requestListenerAdded: false,
     refreshRequestListener: function() {
-        if (this.config.actived) {
+        if (this.config.activated) {
             if (!this.requestListenerAdded) {
                 ChannelManager.addObserver(this, 'http-on-modify-request');
                 this.requestListenerAdded = true;
