@@ -12,10 +12,10 @@
                     name="extensions.referrercontrol.ignoreSameDomains"/>
         <preference id="strictSameDomains" type="bool"
                     name="extensions.referrercontrol.strictSameDomains"/>
-        <preference id="defaultPolicy" type="string"
+        <preference id="defaultPolicy" type="int"
                     name="extensions.referrercontrol.defaultPolicy"/>
-        <preference id="customPolicies" type="string"
-                    name="extensions.referrercontrol.customPolicies"/>
+        <preference id="customRules" type="string"
+                    name="extensions.referrercontrol.customRules"/>
     </preferences>
 
     <hbox align="center">
@@ -29,26 +29,26 @@
     <label value="&DefaultPolicy;" />
     <menulist flex="1" preference="defaultPolicy">
         <menupopup>
-            <menuitem label="skip" value="skip"
+            <menuitem label="&Policy.Skip;" value="0"
                       tooltiptext="&Policy.Skip.Tooltip;"/>
-            <menuitem label="empty" value="empty"
+            <menuitem label="&Policy.Empty;" value="1"
                       tooltiptext="&Policy.Empty.Tooltip;"/>
-            <menuitem label="sourcehost" value="sourcehost"
+            <menuitem label="&Policy.SourceHost;" value="2"
                       tooltiptext="&Policy.SourceHost.Tooltip;"/>
-            <menuitem label="sourcedomain" value="sourcedomain"
+            <menuitem label="&Policy.SourceDomain;" value="3"
                       tooltiptext="&Policy.SourceDomain.Tooltip;"/>
-            <menuitem label="targethost" value="targethost"
+            <menuitem label="&Policy.TargetHost;" value="4"
                       tooltiptext="&Policy.TargetHost.Tooltip;"/>
-            <menuitem label="targetdomain" value="targetdomain"
+            <menuitem label="&Policy.TargetDomain;" value="5"
                       tooltiptext="&Policy.TargetDomain.Tooltip;"/>
         </menupopup>
     </menulist>
     </hbox>
 
-    <label value="&CustomPolicies;" />
+    <label value="&CustomRules;" />
     <textbox flex="1" multiline="true" wrap="off" rows="12" cols="54"
              style="font-family: 'DejaVu Sans Mono',monospace;"
-             preference="customPolicies" />
+             preference="customRules" />
 
 </prefpane>
 </prefwindow>

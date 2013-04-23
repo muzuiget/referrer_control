@@ -4,530 +4,419 @@
 
 "use strict";
 
-const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-const log = function() { dump(Array.slice(arguments).join(' ') + '\n'); }
+const log = function() { dump(Array.slice(arguments).join(' ') + '\n'); };
+const trace = function(error) { log(error); log(error.stack); };
+const dirobj = function(obj) { for (let i in obj) { log(i, ':', obj[i]); } };
+
+const {classes: Cc, interfaces: Ci} = Components;
 
 /* library */
 
 const Utils = (function() {
 
-    const ioService = Cc['@mozilla.org/network/io-service;1']
-                        .getService(Ci.nsIIOService);
-    const tldService = Cc['@mozilla.org/network/effective-tld-service;1']
-                         .getService(Ci.nsIEffectiveTLDService);
+    const etldService = Cc['@mozilla.org/network/effective-tld-service;1']
+                           .getService(Ci.nsIEffectiveTLDService);
 
-    let exports = {
-
-        wildcard2RegExp: function(pattern) {
-            let firstChar = pattern.charAt(0);
-            let lastChat = pattern.charAt(pattern.length - 1);
-            if (firstChar + lastChat === '//') {
-                return new RegExp(pattern.substr(1, -1));
-            } else {
-                pattern = '^' + pattern.replace(/\*/g, '.*') + '$';
-                return new RegExp(pattern);
-            }
-        },
-        fakeTrueTest: {test: function() true},
-
-        getDomain: function(uri) {
-            let domain;
-            try {
-                domain = tldService.getBaseDomain(uri);
-            } catch(error) {
-                domain = uri.host; // it's ip, fallback to host
-            }
-            return domain;
-        },
-        isSameDomains: function(uri1, uri2, strict) {
-            if (strict) {
-                return uri1.host === uri2.host;
-            } else {
-                return this.getDomain(uri1) === this.getDomain(uri2);
-            }
-        },
-
-        loadResource: function(name, folder) {
-            let resource = ioService.getProtocolHandler('resource')
-                                    .QueryInterface(Ci.nsIResProtocolHandler);
-            let path = __SCRIPT_URI_SPEC__ + '/../' + folder + '/';
-            let resourceURI = ioService.newURI(path, null, null);
-            resource.setSubstitution(name, resourceURI);
-            resource.setSubstitution('moduleloader', resourceURI);
+    let wildcard2RegExp = function(pattern) {
+        let firstChar = pattern.charAt(0);
+        let lastChat = pattern.charAt(pattern.length - 1);
+        if (firstChar + lastChat === '//') {
+            return new RegExp(pattern.substr(1, -1));
+        } else {
+            pattern = '^' + pattern.replace(/\*/g, '.*') + '$';
+            return new RegExp(pattern);
         }
+    };
+    let fakeTrueTest = {test: function() true};
 
+    let getDomain = function(uri) {
+        let domain;
+        try {
+            domain = etldService.getBaseDomain(uri);
+        } catch(error) {
+            domain = uri.host; // it's ip, fallback to host
+        }
+        return domain;
+    };
+    let isSameDomains = function(uri1, uri2, strict) {
+        if (strict) {
+            return uri1.host === uri2.host;
+        } else {
+            return getDomain(uri1) === getDomain(uri2);
+        }
     };
 
+    let exports = {
+        wildcard2RegExp: wildcard2RegExp,
+        fakeTrueTest: fakeTrueTest,
+        getDomain: getDomain,
+        isSameDomains: isSameDomains,
+    };
     return exports;
 })();
 
 const StyleManager = (function() {
 
-    const ioService = Cc['@mozilla.org/network/io-service;1']
-                        .getService(Ci.nsIIOService);
     const styleService = Cc['@mozilla.org/content/style-sheet-service;1']
-                           .getService(Ci.nsIStyleSheetService);
+                            .getService(Ci.nsIStyleSheetService);
+    const ioService = Cc['@mozilla.org/network/io-service;1']
+                         .getService(Ci.nsIIOService);
 
-    const styleType = styleService.USER_SHEET;
-    const nsi = {
-        URI: function(uri) {
-            return ioService.newURI(uri, null, null);
+    const STYLE_TYPE = styleService.USER_SHEET;
+
+    const new_nsiURI = function(uri) ioService.newURI(uri, null, null);
+
+    let uris = [];
+
+    let load = function(uri) {
+        let nsiURI = new_nsiURI(uri);
+        if (styleService.sheetRegistered(nsiURI, STYLE_TYPE)) {
+            return;
         }
+        styleService.loadAndRegisterSheet(nsiURI, STYLE_TYPE);
+        uris.push(uri);
+    };
+
+    let unload = function(uri) {
+        let nsiURI = new_nsiURI(uri);
+        if (!styleService.sheetRegistered(nsiURI, STYLE_TYPE)) {
+            return;
+        }
+        styleService.unregisterSheet(nsiURI, STYLE_TYPE);
+        let start = uris.indexOf(uri);
+        uris.splice(start, 1);
+    };
+
+    let destory = function() {
+        for (let uri of uris.slice(0)) {
+            unload(uri);
+        }
+        uris = null;
     };
 
     let exports = {
+        load: load,
+        unload: unload,
+        destory: destory,
+    };
+    return exports;
+})();
 
-        uris: [],
+const BrowserManager = (function() {
 
-        load: function(uri) {
-            let nsiURI = nsi.URI(uri);
-            if (styleService.sheetRegistered(nsiURI, styleType)) {
+    const windowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1']
+                             .getService(Ci.nsIWindowWatcher);
+
+    const BROWSER_URI = 'chrome://browser/content/browser.xul';
+
+    let listeners = [];
+
+    let onload = function(event) {
+        for (let listener of listeners) {
+            let window = event.currentTarget;
+            window.removeEventListener('load', onload);
+            if (window.location.href !== BROWSER_URI) {
                 return;
             }
-            styleService.loadAndRegisterSheet(nsiURI, styleType);
-            this.uris.push(uri);
-        },
-
-        unload: function(uri) {
-            let nsiURI = nsi.URI(uri);
-            if (!styleService.sheetRegistered(nsiURI, styleType)) {
-                return;
-            }
-            styleService.unregisterSheet(nsiURI, styleType);
-            let start = this.uris.indexOf(uri);
-            this.uris.splice(start, 1);
-        },
-
-        unloadAll: function() {
-            for (let uri of this.uris.slice(0)) {
-                this.unload(uri);
+            try {
+                listener(window);
+            } catch(error) {
+                trace(error);
             }
         }
-
     };
 
+    let observer = {
+        observe: function(window, topic, data) {
+            if (topic !== 'domwindowopened') {
+                return;
+            }
+            window.addEventListener('load', onload);
+        }
+    };
+
+    let run = function(func, uri) {
+        let enumerator = windowWatcher.getWindowEnumerator();
+        while (enumerator.hasMoreElements()) {
+            let window = enumerator.getNext();
+            if (window.location.href !== BROWSER_URI) {
+                continue;
+            }
+
+            try {
+                func(window);
+            } catch(error) {
+                trace(error);
+            }
+        }
+    };
+
+    let addListener = function(listener) {
+        listeners.push(listener);
+    };
+
+    let removeListener = function(listener) {
+        let start = listeners.indexOf(listener);
+        if (start !== -1) {
+            listeners.splice(start, 1);
+        }
+    };
+
+    let initialize = function() {
+        windowWatcher.registerNotification(observer);
+    };
+
+    let destory = function() {
+        windowWatcher.unregisterNotification(observer);
+        listeners = null;
+    };
+
+    initialize();
+
+    let exports = {
+        run: run,
+        addListener: addListener,
+        removeListener: removeListener,
+        destory: destory,
+    };
     return exports;
 })();
 
 const ToolbarManager = (function() {
 
-    const BROWSER_URI = 'chrome://browser/content/browser.xul';
+    /**
+     * Remember the button position.
+     * This function Modity from addon-sdk file lib/sdk/widget.js, and
+     * function BrowserWindow.prototype._insertNodeInToolbar
+     */
+    let layoutWidget = function(document, button, isFirstRun) {
+
+        // Add to the customization palette
+        let toolbox = document.getElementById('navigator-toolbox');
+        toolbox.palette.appendChild(button);
+
+        // Search for widget toolbar by reading toolbar's currentset attribute
+        let container = null;
+        let toolbars = document.getElementsByTagName('toolbar');
+        let id = button.getAttribute('id');
+        for (let i = 0; i < toolbars.length; i += 1) {
+            let toolbar = toolbars[i];
+            if (toolbar.getAttribute('currentset').indexOf(id) !== -1) {
+                container = toolbar;
+            }
+        }
+
+        // if widget isn't in any toolbar, default add it next to searchbar
+        if (!container) {
+            if (isFirstRun) {
+                container = document.getElementById('nav-bar');
+            } else {
+                return;
+            }
+        }
+
+        // Now retrieve a reference to the next toolbar item
+        // by reading currentset attribute on the toolbar
+        let nextNode = null;
+        let currentSet = container.getAttribute('currentset');
+        let ids = (currentSet === '__empty') ? [] : currentSet.split(',');
+        let idx = ids.indexOf(id);
+        if (idx !== -1) {
+            for (let i = idx; i < ids.length; i += 1) {
+                nextNode = document.getElementById(ids[i]);
+                if (nextNode) {
+                    break;
+                }
+            }
+        }
+
+        // Finally insert our widget in the right toolbar and in the right position
+        container.insertItem(id, nextNode, null, false);
+
+        // Update DOM in order to save position
+        // in this toolbar. But only do this the first time we add it to the toolbar
+        if (ids.indexOf(id) === -1) {
+            container.setAttribute('currentset', container.currentSet);
+            document.persist(container.id, 'currentset');
+        }
+    };
+
+    let addWidget = function(window, widget, isFirstRun) {
+        try {
+            layoutWidget(window.document, widget, isFirstRun);
+        } catch(error) {
+            trace(error);
+        }
+    };
+
+    let removeWidget = function(window, widgetId) {
+        try {
+            let widget = window.document.getElementById(widgetId);
+            widget.parentNode.removeChild(widget);
+        } catch(error) {
+            trace(error);
+        }
+    };
 
     let exports = {
-
-        /**
-        * Remember the button position.
-        * This function Modity from addon-sdk file lib/sdk/widget.js, and
-        * function BrowserWindow.prototype._insertNodeInToolbar
-        */
-        layoutWidget: function(document, button, isFirstRun) {
-
-            // Add to the customization palette
-            let toolbox = document.getElementById('navigator-toolbox');
-            toolbox.palette.appendChild(button);
-
-            // Search for widget toolbar by reading toolbar's currentset attribute
-            let container = null;
-            let toolbars = document.getElementsByTagName('toolbar');
-            let id = button.getAttribute('id');
-            for (let i = 0; i < toolbars.length; i += 1) {
-                let toolbar = toolbars[i];
-                if (toolbar.getAttribute('currentset').indexOf(id) !== -1) {
-                    container = toolbar;
-                }
-            }
-
-            // if widget isn't in any toolbar, default add it next to searchbar
-            if (!container) {
-                if (isFirstRun) {
-                    container = document.getElementById('nav-bar');
-                } else {
-                    return;
-                }
-            }
-
-            // Now retrieve a reference to the next toolbar item
-            // by reading currentset attribute on the toolbar
-            let nextNode = null;
-            let currentSet = container.getAttribute('currentset');
-            let ids = (currentSet === '__empty') ? [] : currentSet.split(',');
-            let idx = ids.indexOf(id);
-            if (idx !== -1) {
-                for (let i = idx; i < ids.length; i += 1) {
-                    nextNode = document.getElementById(ids[i]);
-                    if (nextNode) {
-                        break;
-                    }
-                }
-            }
-
-            // Finally insert our widget in the right toolbar and in the right position
-            container.insertItem(id, nextNode, null, false);
-
-            // Update DOM in order to save position
-            // in this toolbar. But only do this the first time we add it to the toolbar
-            if (ids.indexOf(id) === -1) {
-                container.setAttribute('currentset', container.currentSet);
-                document.persist(container.id, 'currentset');
-            }
-        },
-
-        addWidget: function(window, widget, isFirstRun) {
-            if (window.location.href !== BROWSER_URI) {
-                return;
-            }
-
-            let document = window.document;
-            try {
-                this.layoutWidget(document, widget, isFirstRun);
-            } catch(error) {
-                log(error);
-            }
-        },
-
-        removeWidget: function(window, widgetId) {
-            if (window.location.href !== BROWSER_URI) {
-                return;
-            }
-
-            let document = window.document;
-            try {
-                let widget = document.getElementById(widgetId);
-                widget.parentNode.removeChild(widget);
-            } catch(error) {
-                log(error);
-            }
-        }
-
+        addWidget: addWidget,
+        removeWidget: removeWidget,
     };
-
     return exports;
 })();
 
-const ChannelManager = (function() {
+let RequestManager = (function() {
 
     const obsService = Cc['@mozilla.org/observer-service;1']
-                         .getService(Ci.nsIObserverService);
+                          .getService(Ci.nsIObserverService);
 
-    let exports =  {
+    const REQUEST_TOPIC = 'http-on-modify-request';
 
-        addObserver: function(listener, topic) {
-            try {
-                obsService.addObserver(listener, topic, false);
-            } catch(error) {
-                log(error);
-            }
-        },
+    let observers = [];
 
-        removeObserver: function(listener, topic) {
-            try {
-                obsService.removeObserver(listener, topic, false);
-            } catch(error) {
-                log(error);
-            }
+    let addObserver = function(observer) {
+        try {
+            obsService.addObserver(observer, REQUEST_TOPIC, false);
+        } catch(error) {
+            trace(error);
+        }
+        observers.push(observers);
+    };
+
+    let removeObserver = function(observer) {
+        try {
+            obsService.removeObserver(observer, REQUEST_TOPIC, false);
+        } catch(error) {
+            trace(error);
         }
     };
 
-    return exports;
-})();
-
-const WindowManager = (function() {
-
-    const windowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1']
-                            .getService(Ci.nsIWindowWatcher);
-    const obsService = Cc['@mozilla.org/observer-service;1']
-                         .getService(Ci.nsIObserverService);
-
-    const BROWSER_URI = 'chrome://browser/content/browser.xul';
-    const OBSERVER_NAME = 'chrome-document-global-created';
+    let destory = function() {
+        for (let observer of observers) {
+            removeObserver(observer);
+        }
+        observers = null;
+    };
 
     let exports = {
-
-        listeners: [],
-        observe: function(window, topic, data) {
-            if (topic !== OBSERVER_NAME) {
-                return;
-            }
-            let $this = this;
-            window.addEventListener('load', function(event) {
-                for (let listener of $this.listeners) {
-                    listener(window);
-                }
-            });
-        },
-
-        initialized: false,
-        initialize: function() {
-            if (this.initialized) {
-                return;
-            }
-            this.listeners = [];
-            obsService.addObserver(this, OBSERVER_NAME, false);
-            this.initialized = true;
-        },
-        destory: function() {
-            if (!this.initialized) {
-                return;
-            }
-            this.listeners = [];
-            obsService.removeObserver(this, OBSERVER_NAME, false);
-            this.initialized = false;
-        },
-
-        apply: function(func) {
-            for (let window of this.getAllWindows()) {
-                try {
-                    func(window);
-                } catch(error) {
-                    log(error);
-                }
-            }
-        },
-        addListener: function(listener) {
-            this.listeners.push(listener);
-        },
-        removeListener: function(listener) {
-            let start = this.listeners.indexOf(listener);
-            if (start !== -1) {
-                this.listeners.splice(start, 1);
-            }
-        },
-
-        getAllWindows: function() {
-            let windows = [];
-            let topWindows = this.getTopWindows();
-            windows = windows.concat(topWindows);
-
-            for (let topWindow of topWindows) {
-                if (!this.isBrowser(topWindow)) {
-                    continue;
-                }
-                let tabWindows = this.getTabWindows(topWindow);
-                windows = windows.concat(tabWindows);
-            }
-            return windows;
-        },
-        getTopWindows: function() {
-            let windows = [];
-            let enumerator = windowWatcher.getWindowEnumerator();
-            while (enumerator.hasMoreElements()) {
-                windows.push(enumerator.getNext());
-            }
-            return windows;
-        },
-        getTabWindows: function(topWindow) {
-            let windows = [];
-            for (let browser of topWindow.gBrowser.browsers) {
-                let window = browser.contentWindow;
-                if (!this.isChrome(window)) {
-                    continue;
-                }
-                windows.push(window);
-            }
-            return windows;
-        },
-
-        getUid: function(window) {
-            return window.QueryInterface(Ci.nsIInterfaceRequestor)
-                         .getInterface(Ci.nsIDOMWindowUtils)
-                         .outerWindowID;
-        },
-
-        isBrowser: function(window) {
-            return window.location.href === BROWSER_URI;
-        },
-        isChrome: function(window) {
-            return window.location.href.startsWith('chrome://');
-        }
+        addObserver: addObserver,
+        removeObserver: removeObserver,
+        destory: destory,
     };
-
     return exports;
 })();
 
-const Preferences = (function() {
+const Pref = function(branchRoot) {
 
+    const supportsStringClass = Cc['@mozilla.org/supports-string;1'];
     const prefService = Cc['@mozilla.org/preferences-service;1']
-                          .getService(Ci.nsIPrefService);
+                           .getService(Ci.nsIPrefService);
 
-    const nsi = {
-        SupportsString: function(data) {
-            let string = Cc['@mozilla.org/supports-string;1']
-                        .createInstance(Ci.nsISupportsString);
-            string.data = data;
-            return string;
+    const new_nsiSupportsString = function(data) {
+        let string = supportsStringClass.createInstance(Ci.nsISupportsString);
+        string.data = data;
+        return string;
+    };
+
+    let branch = prefService.getBranch(branchRoot);
+
+    let setBool = function(key, value) {
+        branch.setBoolPref(key, value);
+    };
+    let getBool = function(key, defaultValue) {
+        let value;
+        try {
+            value = branch.getBoolPref(key);
+        } catch(error) {
+            value = defaultValue || null;
+        }
+        return value;
+    };
+
+    let setInt = function(key, value) {
+        branch.setIntPref(key, value);
+    };
+    let getInt = function(key, defaultValue) {
+        let value;
+        try {
+            value = branch.getIntPref(key);
+        } catch(error) {
+            value = defaultValue || null;
+        }
+        return value;
+    };
+
+    let setString = function(key, value) {
+        branch.setComplexValue(key, Ci.nsISupportsString,
+                               new_nsiSupportsString(value));
+    };
+    let getString = function(key, defaultValue) {
+        let value;
+        try {
+            value = branch.getComplexValue(key, Ci.nsISupportsString).data;
+        } catch(error) {
+            value = defaultValue || null;
+        }
+        return value;
+    };
+
+    let addObserver = function(observer) {
+        try {
+            branch.addObserver('', observer, false);
+        } catch(error) {
+            trace(error);
+        }
+    };
+    let removeObserver = function(observer) {
+        try {
+            branch.removeObserver('', observer, false);
+        } catch(error) {
+            trace(error);
         }
     };
 
-    let exports = function(branch) {
-        let pref = prefService.getBranch(branch);
-
-        let setBool = function(key, value) {
-            pref.setBoolPref(key, value);
-        };
-        let getBool = function(key, defaultValue) {
-            let value = defaultValue;
-            try {
-                value = pref.getBoolPref(key);
-            } catch(error) {
-                if (defaultValue !== undefined) {
-                    setBool(key, defaultValue);
-                }
-            }
-            return value;
-        };
-
-        let setString = function(key, value) {
-            pref.setComplexValue(key, Ci.nsISupportsString,
-                                nsi.SupportsString(value));
-        };
-        let getString = function(key, defaultValue) {
-            let value = defaultValue;
-            try {
-                value = pref.getComplexValue(key, Ci.nsISupportsString).data;
-            } catch(error) {
-                if (defaultValue !== undefined) {
-                    setString(key, defaultValue);
-                }
-            }
-            return value;
-        };
-
-        let addObserver = function(observer) {
-            try {
-                pref.addObserver('', observer, false);
-            } catch(error) {
-                log(error);
-            }
-        };
-        let removeObserver = function(observer) {
-            try {
-                pref.removeObserver('', observer, false);
-            } catch(error) {
-                log(error);
-            }
-        };
-
-        let wrapper = {
-            setBool: setBool,
-            getBool: getBool,
-            setString: setString,
-            getString: getString,
-            addObserver: addObserver,
-            removeObserver: removeObserver
-        }
-        return wrapper;
-    };
-
+    let exports = {
+        setBool: setBool,
+        getBool: getBool,
+        setInt: setInt,
+        getInt: getInt,
+        setString: setString,
+        getString: getString,
+        addObserver: addObserver,
+        removeObserver: removeObserver
+    }
     return exports;
-})();
+};
 
-const Widget = (function() {
+const Widget = function(window, type, attrs) {
 
     const NS_XUL = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
 
-    let exports = function(window, type, attrs) {
-        if (type.trim() === 'script') {
-            throw 'Type should not be script';
-        }
-        let widget = window.document.createElementNS(NS_XUL, type);
-        if (!attrs) {
-            return widget;
-        }
+    if (type.trim() === 'script') {
+        throw 'Type should not be script';
+    }
+
+    let widget = window.document.createElementNS(NS_XUL, type);
+    if (attrs) {
         for (let [key, value] in Iterator(attrs)) {
             widget.setAttribute(key, value);
         }
-        return widget;
-    };
-
-    return exports;
-})();
+    }
+    return widget;
+};
 
 /* main */
 
-const STYLE_URI = 'chrome://referrercontrol/skin/browser.css';
-const PREFERENCE_BRANCH = 'extensions.referrercontrol.';
-const POLICY_NAMES = ['skip', 'empty', 'sourcehost',
-                      'sourcedomain', 'targethost', 'targetdomain'];
+let Policy = (function() {
 
-let ReferrerControl = {
+    const NAMES = ['skip', 'empty', 'source host', 'source domain',
+                   'target host', 'target domain'];
 
-    config: {
-        activated: false,
-        firstRun: true,
-        ignoreSameDomains: true,
-        strictSameDomains: false,
-        defaultPolicy: 'targethost',
-        defaultPolicyCode: 4,
-        customPolicies: '',
-        customPoliciesRules: []
-    },
+    let toCode = function(name) NAMES.indexOf(name);
 
-    preferences: null,
+    let toName = function(code) NAMES[code];
 
-    observe: function(subject, topic, data) {
-        if (topic === 'http-on-modify-request') {
-            let channel = subject.QueryInterface(Ci.nsIHttpChannel);
-            try {
-                this.handlerReferrer(channel);
-            } catch(error) {
-                log(error);
-            }
-            return;
-        }
-
-        if (topic === 'nsPref:changed') {
-            this.loadPreferences();
-            this.refreshToolbarButton();
-            this.refreshRequestListener();
-            return;
-        }
-
-    },
-    loadPreferences: function() {
-        let pref = this.preferences;
-        let config = {};
-        pref.removeObserver(this);
-
-        config.activated = pref.getBool('activated', false);
-        config.firstRun = pref.getBool('firstRun', true);
-        config.ignoreSameDomains = pref.getBool('ignoreSameDomains', true);
-        config.strictSameDomains = pref.getBool('strictSameDomains', false);
-
-        config.defaultPolicy = pref.getString('defaultPolicy', 'targethost');
-        config.defaultPolicyCode = this.nameToCode(config.defaultPolicy);
-
-        config.customPolicies = pref.getString('customPolicies', '');
-        config.customPoliciesRules = this.compileRules(config.customPolicies);
-
-        pref.addObserver(this);
-        this.config = config;
-    },
-
-    initialize: function() {
-        this.preferences = Preferences(PREFERENCE_BRANCH);
-        this.loadPreferences();
-        this.refreshRequestListener();
-
-        StyleManager.load(STYLE_URI);
-        WindowManager.initialize();
-        WindowManager.apply(this.onWindowLoad);
-        WindowManager.addListener(this.onWindowLoad);
-    },
-    destory: function() {
-        this.preferences.removeObserver(this);
-        if (this.requestListenerAdded) {
-            ChannelManager.removeObserver(this, 'http-on-modify-request');
-        }
-        this.requestListenerAdded = false;
-        this.saveConfig();
-
-        StyleManager.unloadAll();
-        WindowManager.apply(this.onWindowUnload);
-        WindowManager.destory();
-    },
-
-    compileRules: function(text) {
-        // TODO: need more detail error check
+    let toRules = function(text) {
         if (!text.trim()) {
             return [];
         }
@@ -536,13 +425,14 @@ let ReferrerControl = {
         try {
             json = JSON.parse(text);
         } catch(error) {
-            log(error);
+            trace(error);
             return [];
         }
 
         let toRegExp = Utils.wildcard2RegExp;
         let fakeRegExp = Utils.fakeTrueTest;
         let isUrlReg = new RegExp('^https\?://');
+        let trimSpaces = function(s) s.replace(/ /g, '');
 
         let rules = [];
         for (let item of json) {
@@ -551,7 +441,7 @@ let ReferrerControl = {
             if (rule.isUrl) {
                 rule.url = item.value;
             } else {
-                rule.code = this.nameToCode(item.value);
+                rule.code = toCode(trimSpaces(item.value));
                 if (rule.code === -1) {
                     continue;
                 }
@@ -561,243 +451,377 @@ let ReferrerControl = {
             rules.push(rule);
         }
         return rules;
-    },
+    };
 
-    createToolbarButton: function(window) {
-        let $this = this;
+    let exports = {
+        NAMES: NAMES,
+        toName: toName,
+        toCode: toCode,
+        toRules: toRules,
+    };
+    return exports;
+})();
 
-        let onButtonCommand = function(event) {
-            if (event.target === button) {
-                $this.toggle();
-            } else {
-                $this.toggle(true);
-            }
-        };
+let Referrer = (function() {
 
-        let onMenuitemCommand = function(event) {
-            let name = event.target.value;
-            let config = $this.config;
-            config.defaultPolicy = name;
-            config.defaultPolicyCode = $this.nameToCode(name);
-        };
-
-        let createButton = function() {
-            let attrs = {
-                id: 'referrercontrol-button',
-                'class': 'toolbarbutton-1 chromeclass-toolbar-additional',
-                type: 'menu-button',
-                removable: true,
-                label: 'Referrer Control',
-                tooltiptext: 'Referrer Control'
-            };
-            if (!$this.config.activated) {
-                attrs.disabled = 'yes';
-            }
-            return Widget(window, 'toolbarbutton', attrs);
-        };
-
-        let createMenupopup = function() {
-            return Widget(window, 'menupopup');
-        };
-
-        let createMenuitems = function() {
-            let {defaultPolicy} = $this.config;
-
-            let menuitems = [];
-            for (let name of POLICY_NAMES) {
-                let attrs = {
-                    label: name,
-                    value: name,
-                    name: 'referrercontrol-policy',
-                    type: 'radio',
-                    checked: name === defaultPolicy,
-                };
-                let menuitem = Widget(window, 'menuitem', attrs);
-                menuitems.push(menuitem);
-            }
-            return menuitems;
-        };
-
-        let button = createButton();
-        button.addEventListener('command', onButtonCommand);
-
-        let menupopup = createMenupopup();
-        for (let menuitem of createMenuitems()) {
-            menuitem.addEventListener('command', onMenuitemCommand);
-            menupopup.appendChild(menuitem);
-        }
-        button.appendChild(menupopup);
-        return button;
-    },
-    refreshToolbarButton: function() {
-        let {activated, defaultPolicy} = this.config;
-        WindowManager.apply(function(window) {
-            if (!WindowManager.isBrowser(window)) {
-                return;
-            }
-            let document = window.document;
-            let button = document.getElementById('referrercontrol-button');
-            if (!button) {
-                return;
-            }
-
-            if (activated) {
-                button.removeAttribute('disabled');
-            } else {
-                button.setAttribute('disabled', 'yes');
-            }
-            let menuitems = button.getElementsByTagName('menuitem');
-            for (let menuitem of menuitems) {
-                let value = menuitem.getAttribute('value');
-                menuitem.setAttribute('checked', value === defaultPolicy);
-            }
-        });
-    },
-
-    toggle: function(activated) {
-        if (activated === undefined) {
-            activated = !this.config.activated;
-        }
-        this.config.activated = activated;
-        this.saveConfig();
-        this.refreshToolbarButton();
-        this.refreshRequestListener();
-    },
-
-    saveConfig: function() {
-        let pref = this.preferences;
-        let {activated, defaultPolicy} = this.config;
-
-        pref.removeObserver(this);
-        pref.setBool('activated', activated);
-        pref.setBool('firstRun', false);
-        pref.setString('defaultPolicy', defaultPolicy);
-        pref.addObserver(this);
-    },
-
-    nameToCode: function(name) {
-        return POLICY_NAMES.indexOf(name);
-    },
-    codeToName: function(code) {
-        return POLICY_NAMES[code];
-    },
-
-    requestListenerAdded: false,
-    refreshRequestListener: function() {
-        if (this.config.activated) {
-            if (!this.requestListenerAdded) {
-                ChannelManager.addObserver(this, 'http-on-modify-request');
-                this.requestListenerAdded = true;
-            }
-        } else {
-            if (this.requestListenerAdded) {
-                ChannelManager.removeObserver(this, 'http-on-modify-request');
-                this.requestListenerAdded = false;
-            }
-        }
-    },
-
-    debugResult: function(channel, referrer) {
-        let lines = [channel.originalURI.spec,
-                    'from: ' + channel.referrer.spec,
-                    '  to: ' + referrer]
-        log(lines.join('\n  '));
-    },
-    handlerReferrer: function(channel) {
-        // check if have header
-        if (!channel.referrer) {
-            return;
-        }
-
-        let {ignoreSameDomains, strictSameDomains} = this.config;
-
-        // ignore same domains
-        if (ignoreSameDomains &&
-                Utils.isSameDomains(channel.URI, channel.referrer,
-                                    strictSameDomains)) {
-            return;
-        }
-
-        // now select override policy
-        let referrer = this.makeReferrer(channel);
-        //this.debugResult(channel, referrer);
-        if (referrer === null) {
-            return;
-        }
-
-        channel.setRequestHeader('Referer', referrer, false);
-    },
-
-    makeReferrer: function(channel) {
-        let {defaultPolicyCode, customPoliciesRules} = this.config;
-        let {URI, referrer} = channel;
-        for (let rule of customPoliciesRules) {
-            let {source, target, isUrl, url, code} = rule;
-            if (!source.test(referrer.spec) || !target.test(URI.spec)) {
-                continue;
-            }
-            if (isUrl) {
-                return url;
-            } else {
-                return this.codeToUrl(channel, code);
-            }
-        }
-        return this.codeToUrl(channel, defaultPolicyCode);
-    },
-    codeToUrl: function(channel, code) {
+    let toUrl = function(sourceURI, targetURI, policy) {
         let value;
-        switch (code) {
+        switch (policy) {
             case 0: // skip
                 return null;
             case 1: // empty
                 return '';
-            case 2: // sourcehost
-                value = channel.referrer.host;
+            case 2: // source host
+                value = sourceURI.host;
                 break;
-            case 3: // sourcedomain
-                value = Utils.getDomain(channel.referrer);
+            case 3: // source domain
+                value = Utils.getDomain(sourceURI);
                 break;
-            case 4: // targethost
-                value = channel.URI.host;
+            case 4: // target host
+                value = targetURI.host;
                 break;
-            case 5: // targetdomain
-                value = Utils.getDomain(channel.URI);
+            case 5: // target domain
+                value = Utils.getDomain(targetURI);
                 break;
             default:
                 return null;
         }
-        return channel.referrer.scheme + '://' + value + '/';
-    },
+        return sourceURI.scheme + '://' + value + '/';
+    };
 
-    // WindowManager listener callbacks
-    get onWindowLoad() {
-        let $this = this;
-        return function(window) {
-            if (!WindowManager.isBrowser(window)) {
-                return;
-            }
-            try {
-                let button = $this.createToolbarButton(window);
-                let isFirstRun = $this.config.firstRun;
-                ToolbarManager.addWidget(window, button, isFirstRun);
-            } catch(error) {
-                log(error);
-            }
-        }
-    },
-    get onWindowUnload() {
-        return function(window) {
-            if (!WindowManager.isBrowser(window)) {
-                return;
-            }
-            try {
-                ToolbarManager.removeWidget(window, 'referrercontrol-button');
-            } catch(error) {
-                log(error);
+    let debugResult = function(sourceURI, targetURI, result) {
+        let lines = ['source: ' + sourceURI.spec,
+                     'target: ' + targetURI.spec,
+                     'result: ' + result]
+        log(lines.join('\n'));
+    };
+
+    let getFor = function(sourceURI, targetURI, rules, policy) {
+        let result = null;
+        for (let rule of rules) {
+            let {source, target, isUrl, url, code} = rule;
+            if (source.test(sourceURI.spec) && target.test(targetURI.spec)) {
+                if (isUrl) {
+                    result = url;
+                } else {
+                    result = toUrl(sourceURI, targetURI, code);
+                }
+                break;
             }
         }
+        if (!result) {
+            result = toUrl(sourceURI, targetURI, policy);
+        }
+        debugResult(sourceURI, targetURI, result);
+        return result;
+    };
+
+    let exports = {
+        getFor: getFor,
     }
-};
+    return exports;
+})();
+
+let ReferrerControl = (function() {
+
+    const STYLE_URI = 'chrome://referrercontrol/skin/browser.css';
+    const PREF_BRANCH = 'extensions.referrercontrol.';
+
+    let config = {
+        firstRun: true,
+        activated: false,
+        ignoreSameDomains: true,
+        strictSameDomains: false,
+        defaultPolicy: 4, // in pref is name string
+        customRules: [], // in pref is json text
+    };
+
+    let pref = Pref(PREF_BRANCH);
+    let prefObserver = {
+
+        observe: function(subject, topic, data) {
+            this.reloadConfig();
+            Button.refresh(config.activated, config.defaultPolicy);
+        },
+
+        start: function() {
+            pref.addObserver(this);
+        },
+        stop: function() {
+            pref.removeObserver(this);
+        },
+
+        initBool: function(name) {
+            let value = pref.getBool(name);
+            if (value === null) {
+                pref.setBool(name, config[name]);
+            } else {
+                config[name] = value;
+            }
+        },
+        initInt: function(name) {
+            let value = pref.getInt(name);
+            if (value === null) {
+                pref.setInt(name, config[name]);
+            } else {
+                config[name] = value;
+            }
+        },
+        initComplex: function(name, converter, defaultValue) {
+            let text = pref.getString(name);
+            if (text === null) {
+                pref.setString(name, defaultValue);
+            } else {
+                config[name] = converter(text);
+            }
+        },
+
+        loadBool: function(name) {
+            let value = pref.getBool(name);
+            if (value !== null) {
+                config[name] = value;
+            }
+        },
+        loadInt: function(name) {
+            let value = pref.getInt(name);
+            if (value !== null) {
+                config[name] = value;
+            }
+        },
+        loadComplex: function(name, converter) {
+            let text = pref.getString(name);
+            if (text !== null) {
+                config[name] = converter(text);
+            }
+        },
+
+        initConfig: function() {
+            let {initBool, initInt, initComplex} = this;
+            initBool('firstRun');
+            initBool('activated');
+            initBool('ignoreSameDomains');
+            initBool('strictSameDomains');
+            initInt('defaultPolicy');
+            initComplex('customRules', Policy.toRules, '');
+        },
+        reloadConfig: function() {
+            let {loadBool, loadInt, loadComplex} = this;
+            loadBool('firstRun');
+            loadBool('activated');
+            loadBool('ignoreSameDomains');
+            loadBool('strictSameDomains');
+            loadInt('defaultPolicy');
+            loadComplex('customRules', Policy.toRules);
+        },
+        saveConfig: function() {
+            this.stop(); // avoid recursion
+
+            pref.setBool('firstRun', false);
+            pref.setBool('activated', config.activated);
+            pref.setInt('defaultPolicy', config.defaultPolicy);
+
+            this.start();
+        }
+    };
+
+    let reqObserver = {
+
+        observing: false,
+
+        observe: function(subject, topic, data) {
+            try {
+                let channel = subject.QueryInterface(Ci.nsIHttpChannel);
+                this.override(channel);
+            } catch(error) {
+                trace(error);
+            }
+        },
+
+        start: function() {
+            if (!this.observing) {
+                RequestManager.addObserver(this);
+                this.observing = true;
+            }
+        },
+        stop: function() {
+            if (this.observing) {
+                RequestManager.removeObserver(this);
+                this.observing = false;
+            }
+        },
+        refresh: function() {
+            if (config.activated) {
+                this.start();
+            } else {
+                this.stop();
+            }
+        },
+
+        override: function(channel) {
+            if (!channel.referrer) {
+                return;
+            }
+
+            let {ignoreSameDomains, strictSameDomains,
+                defaultPolicy, customRules} = config;
+            let {referrer: sourceURI, URI: targetURI} = channel;
+
+            // ignore same domains
+            if (ignoreSameDomains &&
+                    Utils.isSameDomains(sourceURI, targetURI,
+                                        strictSameDomains)) {
+                return;
+            }
+
+            // now find override referrer string
+            let referrer = Referrer.getFor(sourceURI, targetURI,
+                                        customRules, defaultPolicy);
+            if (referrer === null) {
+                return;
+            }
+
+            channel.setRequestHeader('Referer', referrer, false);
+        }
+    };
+
+    let toolbarButtons = {
+
+        refresh: function() {
+            let {activated, defaultPolicy} = config;
+            BrowserManager.run(function(window) {
+                let document = window.document;
+                let button = document.getElementById('referrercontrol-button');
+                if (activated) {
+                    button.removeAttribute('disabled');
+                } else {
+                    button.setAttribute('disabled', 'yes');
+                }
+                let menuitems = button.getElementsByTagName('menuitem');
+                for (let menuitem of menuitems) {
+                    let value = parseInt(menuitem.getAttribute('value'));
+                    menuitem.setAttribute('checked', value === defaultPolicy);
+                }
+            });
+        },
+
+        toggle: function(activated) {
+            if (activated === undefined) {
+                activated = !config.activated;
+            }
+            config.activated = activated;
+            reqObserver.refresh();
+            this.refresh();
+        },
+
+        createButtonCommand: function() {
+            let that = this; // damn it
+            return function(event) {
+                // click menuitem auto activate button
+                if (event.target === this) {
+                    that.toggle();
+                } else {
+                    that.toggle(true);
+                }
+            }
+        },
+
+        onMenuitemCommand: function(event) {
+            config.defaultPolicy = parseInt(event.target.getAttribute('value'));
+        },
+
+        createInstance: function(window) {
+
+            let createButton = function() {
+                let attrs = {
+                    id: 'referrercontrol-button',
+                    'class': 'toolbarbutton-1 chromeclass-toolbar-additional',
+                    type: 'menu-button',
+                    removable: true,
+                    label: 'Referrer Control',
+                    tooltiptext: 'Referrer Control'
+                };
+                if (!config.activated) {
+                    attrs.disabled = 'yes';
+                }
+                return Widget(window, 'toolbarbutton', attrs);
+            };
+
+            let createMenupopup = function() {
+                return Widget(window, 'menupopup');
+            };
+
+            let createMenuitems = function() {
+                let {defaultPolicy} = config;
+                let menuitems = [];
+                for (let name of Policy.NAMES) {
+                    let code = Policy.toCode(name);
+                    let attrs = {
+                        label: name,
+                        value: code,
+                        name: 'referrercontrol-policy',
+                        type: 'radio',
+                        checked: code === defaultPolicy,
+                    };
+                    let menuitem = Widget(window, 'menuitem', attrs);
+                    menuitems.push(menuitem);
+                }
+                return menuitems;
+            };
+
+            let button = createButton();
+            button.addEventListener('command', this.createButtonCommand());
+
+            let menupopup = createMenupopup();
+            for (let menuitem of createMenuitems()) {
+                menuitem.addEventListener('command', this.onMenuitemCommand);
+                menupopup.appendChild(menuitem);
+            }
+            button.appendChild(menupopup);
+            return button;
+        }
+    };
+
+    let insertToolbarButton = function(window) {
+        let button = toolbarButtons.createInstance(window);
+        try {
+            ToolbarManager.addWidget(window, button, config.firstRun);
+        } catch(error) {
+            trace(error);
+        }
+    };
+    let removeToolbarButton = function(window) {
+        try {
+            ToolbarManager.removeWidget(window, 'referrercontrol-button');
+        } catch(error) {
+            trace(error);
+        }
+    };
+
+    let initialize = function() {
+        prefObserver.initConfig();
+        prefObserver.start();
+        reqObserver.start();
+
+        BrowserManager.run(insertToolbarButton);
+        BrowserManager.addListener(insertToolbarButton);
+        StyleManager.load(STYLE_URI);
+    };
+    let destory = function() {
+        prefObserver.saveConfig();
+        prefObserver.stop();
+        reqObserver.stop();
+
+        BrowserManager.run(removeToolbarButton);
+        BrowserManager.destory();
+        StyleManager.destory();
+    };
+
+    let exports = {
+        initialize: initialize,
+        destory: destory,
+    }
+    return exports;
+})();
 
 /* bootstrap */
 
