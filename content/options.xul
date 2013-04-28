@@ -9,8 +9,8 @@
     ondialogaccept="return doAccept();"
     width="540" height="480" >
 
-    <stringbundleset id="stringbundleset">
-        <stringbundle id="strings"
+    <stringbundleset>
+        <stringbundle id="referrercontrol-strings"
                       src="chrome://referrercontrol/locale/global.properties"/>
     </stringbundleset>
     <script type="application/x-javascript"

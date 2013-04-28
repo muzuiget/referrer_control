@@ -2,7 +2,7 @@
 
 let _ = null;
 let loadLocalization = function() {
-    let stringbundle = document.getElementById('strings');
+    let stringbundle = document.getElementById('referrercontrol-strings');
     _ = function(name) stringbundle.getString(name);
 };
 

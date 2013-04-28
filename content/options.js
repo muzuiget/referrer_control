@@ -1,6 +1,7 @@
 "use strict"
 
 const {classes: Cc, interfaces: Ci} = Components;
+const NS_XUL = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
 
 /* library */
 
@@ -39,23 +40,6 @@ const Pref = function(branchRoot) {
     return exports;
 };
 
-const Widget = function(type, attrs) {
-
-    const NS_XUL = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
-
-    if (type.trim() === 'script') {
-        throw 'Type should not be script';
-    }
-
-    let widget = document.createElementNS(NS_XUL, type);
-    if (attrs) {
-        for (let [key, value] in Iterator(attrs)) {
-            widget.setAttribute(key, value);
-        }
-    }
-    return widget;
-};
-
 /* main */
 
 const EDITOR_XUL = 'chrome://referrercontrol/content/editor.xul';
@@ -65,7 +49,7 @@ const PREF_BRANCH = 'extensions.referrercontrol.';
 
 let _ = null;
 let loadLocalization = function() {
-    let stringbundle = document.getElementById('strings');
+    let stringbundle = document.getElementById('referrercontrol-strings');
     _ = function(name) stringbundle.getString(name);
 };
 
@@ -92,20 +76,24 @@ let customRules = (function() {
 })();
 
 let createTreeItem = function(index, rule) {
-    let treeitem = Widget('treeitem');
-    let treerow = Widget('treerow');
+    let treeitem = document.createElementNS(NS_XUL, 'treeitem');
+    let treerow = document.createElementNS(NS_XUL, 'treerow');
 
-    let indexCell = Widget('treecell', {label: index});
+    let indexCell = document.createElementNS(NS_XUL, 'treecell')
+    indexCell.setAttribute('label', index);
 
     let sourceLabel = rule.source || '<' + _('any') + '>';
-    let sourceCell = Widget('treecell', {label: sourceLabel});
+    let sourceCell = document.createElementNS(NS_XUL, 'treecell');
+    sourceCell.setAttribute('label', sourceLabel);
 
     let targetLabel = rule.target || '<' + _('any') + '>';
-    let targetCell = Widget('treecell', {label: targetLabel});
+    let targetCell = document.createElementNS(NS_XUL, 'treecell');
+    targetCell.setAttribute('label', targetLabel);
 
     let isCustom = typeof(rule.value) === 'string';
     let valueLabel = isCustom ? rule.value : '<' + policyNames[rule.value] + '>';
-    let valueCell = Widget('treecell', {label: valueLabel});
+    let valueCell = document.createElementNS(NS_XUL, 'treecell');
+    valueCell.setAttribute('label', valueLabel);
 
     treerow.appendChild(indexCell);
     treerow.appendChild(sourceCell);

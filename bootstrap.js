@@ -9,6 +9,7 @@ const trace = function(error) { log(error); log(error.stack); };
 const dirobj = function(obj) { for (let i in obj) { log(i, ':', obj[i]); } };
 
 const {classes: Cc, interfaces: Ci} = Components;
+const NS_XUL = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
 
 /* library */
 
@@ -51,14 +52,21 @@ const Utils = (function() {
     let localization = function(id, name) {
         let uri = 'chrome://' + id + '/locale/' + name + '.properties';
         return sbService.createBundle(uri).GetStringFromName;
-    }
+    };
+
+    let setAttrs = function(widget, attrs) {
+        for (let [key, value] in Iterator(attrs)) {
+            widget.setAttribute(key, value);
+        }
+    };
 
     let exports = {
         wildcard2RegExp: wildcard2RegExp,
         fakeTrueTest: fakeTrueTest,
         getDomain: getDomain,
         isSameDomains: isSameDomains,
-        localization: localization
+        localization: localization,
+        setAttrs: setAttrs,
     };
     return exports;
 })();
@@ -412,23 +420,6 @@ const Pref = function(branchRoot) {
     return exports;
 };
 
-const Widget = function(window, type, attrs) {
-
-    const NS_XUL = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
-
-    if (type.trim() === 'script') {
-        throw 'Type should not be script';
-    }
-
-    let widget = window.document.createElementNS(NS_XUL, type);
-    if (attrs) {
-        for (let [key, value] in Iterator(attrs)) {
-            widget.setAttribute(key, value);
-        }
-    }
-    return widget;
-};
-
 /* main */
 
 let _ = null;
@@ -755,6 +746,7 @@ let ReferrerControl = function() {
         },
 
         createInstance: function(window) {
+            let document = window.document;
 
             let createButton = function() {
                 let attrs = {
@@ -768,11 +760,13 @@ let ReferrerControl = function() {
                 if (!config.activated) {
                     attrs.disabled = 'yes';
                 }
-                return Widget(window, 'toolbarbutton', attrs);
+                let button = document.createElementNS(NS_XUL, 'toolbarbutton');
+                Utils.setAttrs(button, attrs);
+                return button;
             };
 
             let createMenupopup = function() {
-                return Widget(window, 'menupopup');
+                return document.createElementNS(NS_XUL, 'menupopup');
             };
 
             let createMenuitems = function() {
@@ -786,7 +780,8 @@ let ReferrerControl = function() {
                         type: 'radio',
                         checked: code === defaultPolicy,
                     };
-                    let menuitem = Widget(window, 'menuitem', attrs);
+                    let menuitem = document.createElementNS(NS_XUL, 'menuitem');
+                    Utils.setAttrs(menuitem, attrs);
                     menuitems.push(menuitem);
                 }
                 return menuitems;
