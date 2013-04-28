@@ -1,10 +1,22 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
-<!DOCTYPE window SYSTEM "chrome://referrercontrol/locale/options.dtd">
+<!DOCTYPE window SYSTEM "chrome://referrercontrol/locale/global.dtd">
 
 <prefwindow
     id="referrercontrol"
-    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    onload="onDocumentLoad();"
+    ondialogaccept="return doAccept();"
+    width="540" height="480" >
+
+    <stringbundleset id="stringbundleset">
+        <stringbundle id="strings"
+                      src="chrome://referrercontrol/locale/global.properties"/>
+    </stringbundleset>
+    <script type="application/x-javascript"
+            src="chrome://referrercontrol/content/options.js" />
+
+
 <prefpane id="main" flex="1">
 
     <preferences>
@@ -26,29 +38,67 @@
     </hbox>
 
     <hbox align="center">
-    <label value="&DefaultPolicy;" />
-    <menulist flex="1" preference="defaultPolicy">
-        <menupopup>
-            <menuitem label="&Policy.Skip;" value="0"
-                      tooltiptext="&Policy.Skip.Tooltip;"/>
-            <menuitem label="&Policy.Empty;" value="1"
-                      tooltiptext="&Policy.Empty.Tooltip;"/>
-            <menuitem label="&Policy.SourceHost;" value="2"
-                      tooltiptext="&Policy.SourceHost.Tooltip;"/>
-            <menuitem label="&Policy.SourceDomain;" value="3"
-                      tooltiptext="&Policy.SourceDomain.Tooltip;"/>
-            <menuitem label="&Policy.TargetHost;" value="4"
-                      tooltiptext="&Policy.TargetHost.Tooltip;"/>
-            <menuitem label="&Policy.TargetDomain;" value="5"
-                      tooltiptext="&Policy.TargetDomain.Tooltip;"/>
-        </menupopup>
-    </menulist>
+        <label value="&DefaultPolicy;" />
+        <hbox>
+            <menulist crop="none" preference="defaultPolicy">
+                <menupopup>
+                    <menuitem label="&Policy.Skip;" value="0"
+                              tooltiptext="&Policy.Skip.Tooltip;"/>
+                    <menuitem label="&Policy.Remove;" value="1"
+                              tooltiptext="&Policy.Remove.Tooltip;"/>
+                    <menuitem label="&Policy.SourceHost;" value="2"
+                              tooltiptext="&Policy.SourceHost.Tooltip;"/>
+                    <menuitem label="&Policy.SourceDomain;" value="3"
+                              tooltiptext="&Policy.SourceDomain.Tooltip;"/>
+                    <menuitem label="&Policy.TargetHost;" value="4"
+                              tooltiptext="&Policy.TargetHost.Tooltip;"/>
+                    <menuitem label="&Policy.TargetDomain;" value="5"
+                              tooltiptext="&Policy.TargetDomain.Tooltip;"/>
+                </menupopup>
+            </menulist>
+        </hbox>
     </hbox>
 
-    <label value="&CustomRules;" />
-    <textbox flex="1" multiline="true" wrap="off" rows="12" cols="54"
-             style="font-family: 'DejaVu Sans Mono',monospace;"
-             preference="customRules" />
+    <popupset>
+        <menupopup id="customRules-menu">
+            <menuitem id="customRules-new" label="&Menu.New;"
+                      accesskey="&Menu.New.Accesskey;"
+                      oncommand="onNewCommand();"/>
+            <menuitem id="customRules-edit" label="&Menu.Edit;"
+                      accesskey="&Menu.Edit.Accesskey;"
+                      oncommand="onEditCommand();"/>
+            <menuitem id="customRules-remove" label="&Menu.Remove;"
+                      accesskey="&Menu.Remove.Accesskey;"
+                      oncommand="onRemoveCommand();"/>
+            <menuitem id="customRules-clear" label="&Menu.Clear;"
+                      accesskey="&Menu.Clear.Accesskey;"
+                      oncommand="onClearCommand();"/>
+        </menupopup>
+    </popupset>
+
+    <vbox flex="1">
+        <label value="&CustomRules;" />
+        <tree id="customRules-tree" flex="1" rows="12" seltype="single"
+            ondblclick="onTreeDblclick(event);">
+
+            <treecols>
+                <treecol id="index" label="" flex="0"/>
+                <treecol id="source" label="&Rule.Source;" flex="1"/>
+                <treecol id="target" label="&Rule.Target;" flex="1"/>
+                <treecol id="value" label="&Rule.Value;" flex="1"/>
+            </treecols>
+
+            <treechildren id="customRules-list" context="customRules-menu">
+            </treechildren>
+
+        </tree>
+
+        <!--
+        <textbox flex="1" multiline="true" wrap="off" rows="9" cols="54"
+                style="font-family: 'DejaVu Sans Mono',monospace;"
+                preference="customRules" />
+        -->
+    </vbox>
 
 </prefpane>
 </prefwindow>

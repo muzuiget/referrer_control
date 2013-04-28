@@ -1,0 +1,38 @@
+<!ENTITY IgnoreSameDomains "忽略相同域名請求">
+<!ENTITY StrictSameDomains "把子域名看作不同域名">
+<!ENTITY DefaultPolicy "默認策略：">
+<!ENTITY CustomRules "自定義特定網站規則">
+
+<!ENTITY Policy.Skip "忽略">
+<!ENTITY Policy.Skip.Tooltip "不要修改，保持原​​樣">
+<!ENTITY Policy.Remove "移除">
+<!ENTITY Policy.Remove.Tooltip "不要發送">
+<!ENTITY Policy.SourceHost "來源主機">
+<!ENTITY Policy.SourceHost.Tooltip "修改為來源地址的主機">
+<!ENTITY Policy.SourceDomain "來源域名">
+<!ENTITY Policy.SourceDomain.Tooltip "修改為來源地址的根域名">
+<!ENTITY Policy.TargetHost "目標主機">
+<!ENTITY Policy.TargetHost.Tooltip "修改為目標地址的主機">
+<!ENTITY Policy.TargetDomain "目標域名">
+<!ENTITY Policy.TargetDomain.Tooltip "修改為目標地址的根域名">
+<!ENTITY Policy.CustomUrl "自定義地址">
+<!ENTITY Policy.CustomUrl.Tooltip "自行填寫地址">
+
+<!ENTITY Menu.New "新建">
+<!ENTITY Menu.New.Accesskey "N">
+<!ENTITY Menu.Edit "編輯">
+<!ENTITY Menu.Edit.Accesskey "E">
+<!ENTITY Menu.Remove "移除">
+<!ENTITY Menu.Remove.Accesskey "R">
+<!ENTITY Menu.Clear "清空">
+<!ENTITY Menu.Clear.Accesskey "C">
+
+<!ENTITY Rule.Source "來源">
+<!ENTITY Rule.Target "目標">
+<!ENTITY Rule.Value "值">
+<!ENTITY Rule.Comment "註釋">
+
+<!ENTITY Editor.Source "來源：">
+<!ENTITY Editor.Target "目標：">
+<!ENTITY Editor.Value "值：">
+<!ENTITY Editor.Comment "註釋：">

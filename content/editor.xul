@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!DOCTYPE window SYSTEM "chrome://referrercontrol/locale/global.dtd">
+
+<dialog id="editor"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        buttons="accept,cancel"
+        onload="onDocumentLoad();"
+        ondialogaccept="return doAccept();"
+        ondialogcancel="return doCancel();"
+        width="480">
+
+    <stringbundleset id="stringbundleset">
+        <stringbundle id="strings"
+                      src="chrome://referrercontrol/locale/global.properties"/>
+    </stringbundleset>
+    <script type="application/x-javascript"
+            src="chrome://referrercontrol/content/editor.js" />
+
+    <grid>
+        <columns>
+            <column flex="0"/>
+            <column flex="1"/>
+        </columns>
+
+        <rows>
+
+            <row align="center">
+                <hbox pack="end">
+                    <label value="&Editor.Source;" />
+                </hbox>
+                <textbox id="source" value=""/>
+            </row>
+
+            <row align="center">
+                <hbox pack="end">
+                    <label value="&Editor.Target;" />
+                </hbox>
+                <textbox id="target" value=""/>
+            </row>
+
+            <row align="center">
+                <hbox pack="end">
+                    <label value="&Editor.Value;" />
+                </hbox>
+                <hbox>
+                    <menulist id="value-menulist" crop="none" oncommand="onMenulistChange(this);">
+                        <menupopup>
+                            <menuitem label="&Policy.Skip;" value="0"
+                                      tooltiptext="&Policy.Skip.Tooltip;"/>
+                            <menuitem label="&Policy.Remove;" value="1"
+                                      tooltiptext="&Policy.Remove.Tooltip;"/>
+                            <menuitem label="&Policy.SourceHost;" value="2"
+                                      tooltiptext="&Policy.SourceHost.Tooltip;"/>
+                            <menuitem label="&Policy.SourceDomain;" value="3"
+                                      tooltiptext="&Policy.SourceDomain.Tooltip;"/>
+                            <menuitem label="&Policy.TargetHost;" value="4"
+                                      tooltiptext="&Policy.TargetHost.Tooltip;"/>
+                            <menuitem label="&Policy.TargetDomain;" value="5"
+                                      tooltiptext="&Policy.TargetDomain.Tooltip;"/>
+                            <menuitem label="&Policy.CustomUrl;" value="-1"
+                                      tooltiptext="&Policy.CustomUrl.Tooltip;"/>
+                        </menupopup>
+                    </menulist>
+                </hbox>
+            </row>
+
+            <row align="center">
+                <hbox />
+                <textbox id="value-textbox" value="" flex="1" disabled="true"/>
+            </row>
+
+            <row align="center">
+                <hbox pack="end">
+                    <label value="&Editor.Comment;" />
+                </hbox>
+                <textbox id="comment" value=""/>
+            </row>
+
+        </rows>
+    </grid>
+
+</dialog>

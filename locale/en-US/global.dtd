@@ -1,0 +1,38 @@
+<!ENTITY IgnoreSameDomains "Ignore same domains">
+<!ENTITY StrictSameDomains "Treat subdomains as different domains">
+<!ENTITY DefaultPolicy "Default policy:">
+<!ENTITY CustomRules "Custom url-specific rules:">
+
+<!ENTITY Policy.Skip "skip">
+<!ENTITY Policy.Skip.Tooltip "Don't change it, keep it">
+<!ENTITY Policy.Remove "remove">
+<!ENTITY Policy.Remove.Tooltip "Don't send the header">
+<!ENTITY Policy.SourceHost "source host">
+<!ENTITY Policy.SourceHost.Tooltip "Change it to source url's host">
+<!ENTITY Policy.SourceDomain "source domain">
+<!ENTITY Policy.SourceDomain.Tooltip "Change it to source url's root domain">
+<!ENTITY Policy.TargetHost "target host">
+<!ENTITY Policy.TargetHost.Tooltip "Change it to target url's host">
+<!ENTITY Policy.TargetDomain "target domain">
+<!ENTITY Policy.TargetDomain.Tooltip "Change it to target url's root domain">
+<!ENTITY Policy.CustomUrl "custom url">
+<!ENTITY Policy.CustomUrl.Tooltip "Custom specific url">
+
+<!ENTITY Menu.New "New">
+<!ENTITY Menu.New.Accesskey "N">
+<!ENTITY Menu.Edit "Edit">
+<!ENTITY Menu.Edit.Accesskey "E">
+<!ENTITY Menu.Remove "Remove">
+<!ENTITY Menu.Remove.Accesskey "R">
+<!ENTITY Menu.Clear "Clear">
+<!ENTITY Menu.Clear.Accesskey "C">
+
+<!ENTITY Rule.Source "source">
+<!ENTITY Rule.Target "target">
+<!ENTITY Rule.Value "value">
+<!ENTITY Rule.Comment "comment">
+
+<!ENTITY Editor.Source "Source:">
+<!ENTITY Editor.Target "Target:">
+<!ENTITY Editor.Value "Value:">
+<!ENTITY Editor.Comment "Comment:">

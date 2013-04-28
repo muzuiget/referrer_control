@@ -16,6 +16,8 @@ const Utils = (function() {
 
     const etldService = Cc['@mozilla.org/network/effective-tld-service;1']
                            .getService(Ci.nsIEffectiveTLDService);
+    const sbService = Cc['@mozilla.org/intl/stringbundle;1']
+                         .getService(Ci.nsIStringBundleService);
 
     let wildcard2RegExp = function(pattern) {
         let firstChar = pattern.charAt(0);
@@ -46,11 +48,17 @@ const Utils = (function() {
         }
     };
 
+    let localization = function(id, name) {
+        let uri = 'chrome://' + id + '/locale/' + name + '.properties';
+        return sbService.createBundle(uri).GetStringFromName;
+    }
+
     let exports = {
         wildcard2RegExp: wildcard2RegExp,
         fakeTrueTest: fakeTrueTest,
         getDomain: getDomain,
         isSameDomains: isSameDomains,
+        localization: localization
     };
     return exports;
 })();
@@ -321,7 +329,12 @@ const Pref = function(branchRoot) {
     let branch = prefService.getBranch(branchRoot);
 
     let setBool = function(key, value) {
-        branch.setBoolPref(key, value);
+        try {
+            branch.setBoolPref(key, value);
+        } catch(error) {
+            branch.clearUserPref(key)
+            branch.setBoolPref(key, value);
+        }
     };
     let getBool = function(key, defaultValue) {
         let value;
@@ -334,7 +347,12 @@ const Pref = function(branchRoot) {
     };
 
     let setInt = function(key, value) {
-        branch.setIntPref(key, value);
+        try {
+            branch.setIntPref(key, value);
+        } catch(error) {
+            branch.clearUserPref(key)
+            branch.setIntPref(key, value);
+        }
     };
     let getInt = function(key, defaultValue) {
         let value;
@@ -347,8 +365,14 @@ const Pref = function(branchRoot) {
     };
 
     let setString = function(key, value) {
-        branch.setComplexValue(key, Ci.nsISupportsString,
-                               new_nsiSupportsString(value));
+        try {
+            branch.setComplexValue(key, Ci.nsISupportsString,
+                                   new_nsiSupportsString(value));
+        } catch(error) {
+            branch.clearUserPref(key)
+            branch.setComplexValue(key, Ci.nsISupportsString,
+                                   new_nsiSupportsString(value));
+        }
     };
     let getString = function(key, defaultValue) {
         let value;
@@ -407,60 +431,46 @@ const Widget = function(window, type, attrs) {
 
 /* main */
 
-let Policy = (function() {
+let _ = null;
+let loadLocalization = function() {
+    _ = Utils.localization('referrercontrol', 'global');
+};
 
-    const NAMES = ['skip', 'empty', 'source host', 'source domain',
-                   'target host', 'target domain'];
+let ruleCompiler = function(text) {
+    if (!text.trim()) {
+        return [];
+    }
 
-    let toCode = function(name) NAMES.indexOf(name);
+    let items;
+    try {
+        items = JSON.parse(text);
+    } catch(error) {
+        trace(error);
+        return [];
+    }
 
-    let toName = function(code) NAMES[code];
+    let toRegExp = Utils.wildcard2RegExp;
+    let fakeRegExp = Utils.fakeTrueTest;
+    let isUrlReg = new RegExp('^https\?://');
 
-    let toRules = function(text) {
-        if (!text.trim()) {
-            return [];
+    let rules = [];
+    for (let item of items) {
+        let {source, target, value} = item;
+        let rule = {};
+
+        rule.source = source && toRegExp(source) || fakeRegExp;
+        rule.target = target && toRegExp(target) || fakeRegExp;
+        if (typeof(value) === 'string') {
+            rule.isUrl = true;
+            rule.url = value;
+        } else {
+            rule.isUrl = false;
+            rule.code = value;
         }
-
-        let json;
-        try {
-            json = JSON.parse(text);
-        } catch(error) {
-            trace(error);
-            return [];
-        }
-
-        let toRegExp = Utils.wildcard2RegExp;
-        let fakeRegExp = Utils.fakeTrueTest;
-        let isUrlReg = new RegExp('^https\?://');
-        let trimSpaces = function(s) s.replace(/ /g, '');
-
-        let rules = [];
-        for (let item of json) {
-            let rule = {};
-            rule.isUrl = isUrlReg.test(item.value);
-            if (rule.isUrl) {
-                rule.url = item.value;
-            } else {
-                rule.code = toCode(trimSpaces(item.value));
-                if (rule.code === -1) {
-                    continue;
-                }
-            }
-            rule.source = item.source && toRegExp(item.source) || fakeRegExp;
-            rule.target = item.target && toRegExp(item.target) || fakeRegExp;
-            rules.push(rule);
-        }
-        return rules;
-    };
-
-    let exports = {
-        NAMES: NAMES,
-        toName: toName,
-        toCode: toCode,
-        toRules: toRules,
-    };
-    return exports;
-})();
+        rules.push(rule);
+    }
+    return rules;
+};
 
 let Referrer = (function() {
 
@@ -469,7 +479,7 @@ let Referrer = (function() {
         switch (policy) {
             case 0: // skip
                 return null;
-            case 1: // empty
+            case 1: // remove
                 return '';
             case 2: // source host
                 value = sourceURI.host;
@@ -497,35 +507,44 @@ let Referrer = (function() {
     };
 
     let getFor = function(sourceURI, targetURI, rules, policy) {
-        let result = null;
         for (let rule of rules) {
             let {source, target, isUrl, url, code} = rule;
             if (source.test(sourceURI.spec) && target.test(targetURI.spec)) {
                 if (isUrl) {
-                    result = url;
+                    return url;
                 } else {
-                    result = toUrl(sourceURI, targetURI, code);
+                    return toUrl(sourceURI, targetURI, code);
                 }
-                break;
             }
         }
-        if (!result) {
-            result = toUrl(sourceURI, targetURI, policy);
-        }
+        return toUrl(sourceURI, targetURI, policy);
+    };
+
+    let debugGetFor = function(sourceURI, targetURI, rules, policy) {
+        let result = getFor(sourceURI, targetURI, rules, policy);
         debugResult(sourceURI, targetURI, result);
         return result;
     };
 
     let exports = {
         getFor: getFor,
+        //getFor: debugGetFor,
     }
     return exports;
 })();
 
-let ReferrerControl = (function() {
+let ReferrerControl = function() {
 
     const STYLE_URI = 'chrome://referrercontrol/skin/browser.css';
     const PREF_BRANCH = 'extensions.referrercontrol.';
+    const POLICIES = [
+        [0, _('skip')],
+        [1, _('remove')],
+        [2, _('sourceHost')],
+        [3, _('sourceDomain')],
+        [4, _('targetHost')],
+        [5, _('targetDomain')]
+    ];
 
     let config = {
         firstRun: true,
@@ -535,13 +554,18 @@ let ReferrerControl = (function() {
         defaultPolicy: 4, // in pref is name string
         customRules: [], // in pref is json text
     };
-
     let pref = Pref(PREF_BRANCH);
-    let prefObserver = {
+
+    let prefObserver;
+    let reqObserver;
+    let toolbarButtons;
+
+    prefObserver = {
 
         observe: function(subject, topic, data) {
             this.reloadConfig();
-            Button.refresh(config.activated, config.defaultPolicy);
+            reqObserver.refresh();
+            toolbarButtons.refresh();
         },
 
         start: function() {
@@ -602,7 +626,7 @@ let ReferrerControl = (function() {
             initBool('ignoreSameDomains');
             initBool('strictSameDomains');
             initInt('defaultPolicy');
-            initComplex('customRules', Policy.toRules, '');
+            initComplex('customRules', ruleCompiler, '[]');
         },
         reloadConfig: function() {
             let {loadBool, loadInt, loadComplex} = this;
@@ -611,7 +635,7 @@ let ReferrerControl = (function() {
             loadBool('ignoreSameDomains');
             loadBool('strictSameDomains');
             loadInt('defaultPolicy');
-            loadComplex('customRules', Policy.toRules);
+            loadComplex('customRules', ruleCompiler);
         },
         saveConfig: function() {
             this.stop(); // avoid recursion
@@ -624,7 +648,7 @@ let ReferrerControl = (function() {
         }
     };
 
-    let reqObserver = {
+    reqObserver = {
 
         observing: false,
 
@@ -684,7 +708,7 @@ let ReferrerControl = (function() {
         }
     };
 
-    let toolbarButtons = {
+    toolbarButtons = {
 
         refresh: function() {
             let {activated, defaultPolicy} = config;
@@ -709,6 +733,7 @@ let ReferrerControl = (function() {
                 activated = !config.activated;
             }
             config.activated = activated;
+            prefObserver.saveConfig();
             reqObserver.refresh();
             this.refresh();
         },
@@ -753,8 +778,7 @@ let ReferrerControl = (function() {
             let createMenuitems = function() {
                 let {defaultPolicy} = config;
                 let menuitems = [];
-                for (let name of Policy.NAMES) {
-                    let code = Policy.toCode(name);
+                for (let [code, name] of POLICIES) {
                     let attrs = {
                         label: name,
                         value: code,
@@ -800,7 +824,7 @@ let ReferrerControl = (function() {
     let initialize = function() {
         prefObserver.initConfig();
         prefObserver.start();
-        reqObserver.start();
+        reqObserver.refresh();
 
         BrowserManager.run(insertToolbarButton);
         BrowserManager.addListener(insertToolbarButton);
@@ -821,17 +845,21 @@ let ReferrerControl = (function() {
         destory: destory,
     }
     return exports;
-})();
+};
 
 /* bootstrap */
+
+let referrerControl;
 
 let install = function(data, reason) {};
 let uninstall = function(data, reason) {};
 
 let startup = function(data, reason) {
-    ReferrerControl.initialize();
+    loadLocalization();
+    referrerControl = ReferrerControl();
+    referrerControl.initialize();
 };
 
 let shutdown = function(data, reason) {
-    ReferrerControl.destory();
+    referrerControl.destory();
 };
