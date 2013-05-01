@@ -526,6 +526,8 @@ let Referrer = (function() {
 
 let ReferrerControl = function() {
 
+    const EXTENSION_NAME = 'Referrer Control';
+    const BUTTON_ID = 'referrercontrol-button';
     const STYLE_URI = 'chrome://referrercontrol/skin/browser.css';
     const PREF_BRANCH = 'extensions.referrercontrol.';
     const POLICIES = [
@@ -586,6 +588,7 @@ let ReferrerControl = function() {
             let text = pref.getString(name);
             if (text === null) {
                 pref.setString(name, defaultValue);
+                config[name] = converter(defaultValue);
             } else {
                 config[name] = converter(text);
             }
@@ -705,7 +708,7 @@ let ReferrerControl = function() {
             let {activated, defaultPolicy} = config;
             BrowserManager.run(function(window) {
                 let document = window.document;
-                let button = document.getElementById('referrercontrol-button');
+                let button = document.getElementById(BUTTON_ID);
                 if (activated) {
                     button.removeAttribute('disabled');
                 } else {
@@ -750,12 +753,12 @@ let ReferrerControl = function() {
 
             let createButton = function() {
                 let attrs = {
-                    id: 'referrercontrol-button',
+                    id: BUTTON_ID,
                     'class': 'toolbarbutton-1 chromeclass-toolbar-additional',
                     type: 'menu-button',
                     removable: true,
-                    label: 'Referrer Control',
-                    tooltiptext: 'Referrer Control'
+                    label: EXTENSION_NAME,
+                    tooltiptext: EXTENSION_NAME,
                 };
                 if (!config.activated) {
                     attrs.disabled = 'yes';
@@ -810,7 +813,7 @@ let ReferrerControl = function() {
     };
     let removeToolbarButton = function(window) {
         try {
-            ToolbarManager.removeWidget(window, 'referrercontrol-button');
+            ToolbarManager.removeWidget(window, BUTTON_ID);
         } catch(error) {
             trace(error);
         }
