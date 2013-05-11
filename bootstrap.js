@@ -491,6 +491,8 @@ let Referrer = (function() {
             case 5: // target domain
                 value = Utils.getDomain(targetURI);
                 break;
+            case 6: // target url
+                return targetURI.spec;
             default:
                 return null;
         }
@@ -543,7 +545,8 @@ let ReferrerControl = function() {
         [2, _('sourceHost')],
         [3, _('sourceDomain')],
         [4, _('targetHost')],
-        [5, _('targetDomain')]
+        [5, _('targetDomain')],
+        [6, _('targetUrl')]
     ];
 
     let config = {

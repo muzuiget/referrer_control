@@ -58,6 +58,8 @@
                                       tooltiptext="&Policy.TargetHost.Tooltip;"/>
                             <menuitem label="&Policy.TargetDomain;" value="5"
                                       tooltiptext="&Policy.TargetDomain.Tooltip;"/>
+                            <menuitem label="&Policy.TargetUrl;" value="6"
+                                      tooltiptext="&Policy.TargetUrl.Tooltip;"/>
                             <menuitem label="&Policy.CustomUrl;" value="-1"
                                       tooltiptext="&Policy.CustomUrl.Tooltip;"/>
                         </menupopup>

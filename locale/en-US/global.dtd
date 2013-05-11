@@ -15,6 +15,8 @@
 <!ENTITY Policy.TargetHost.Tooltip "Change it to target url's host">
 <!ENTITY Policy.TargetDomain "target domain">
 <!ENTITY Policy.TargetDomain.Tooltip "Change it to target url's root domain">
+<!ENTITY Policy.TargetUrl "target url">
+<!ENTITY Policy.TargetUrl.Tooltip "Change it to target url">
 <!ENTITY Policy.CustomUrl "custom url">
 <!ENTITY Policy.CustomUrl.Tooltip "Custom specific url">
 

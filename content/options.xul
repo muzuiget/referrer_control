@@ -55,6 +55,8 @@
                               tooltiptext="&Policy.TargetHost.Tooltip;"/>
                     <menuitem label="&Policy.TargetDomain;" value="5"
                               tooltiptext="&Policy.TargetDomain.Tooltip;"/>
+                    <menuitem label="&Policy.TargetUrl;" value="6"
+                              tooltiptext="&Policy.TargetUrl.Tooltip;"/>
                 </menupopup>
             </menulist>
         </hbox>
