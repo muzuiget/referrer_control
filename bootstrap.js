@@ -19,6 +19,8 @@ const Utils = (function() {
                            .getService(Ci.nsIEffectiveTLDService);
     const sbService = Cc['@mozilla.org/intl/stringbundle;1']
                          .getService(Ci.nsIStringBundleService);
+    const windowMediator = Cc['@mozilla.org/appshell/window-mediator;1']
+                              .getService(Ci.nsIWindowMediator);
 
     let wildcard2RegExp = function(pattern) {
         let firstChar = pattern.charAt(0);
@@ -60,6 +62,10 @@ const Utils = (function() {
         }
     };
 
+    let getMostRecentWindow = function(winType) {
+        return windowMediator.getMostRecentWindow(winType);
+    };
+
     let exports = {
         wildcard2RegExp: wildcard2RegExp,
         fakeTrueTest: fakeTrueTest,
@@ -67,6 +73,7 @@ const Utils = (function() {
         isSameDomains: isSameDomains,
         localization: localization,
         setAttrs: setAttrs,
+        getMostRecentWindow: getMostRecentWindow,
     };
     return exports;
 })();
@@ -744,7 +751,19 @@ let ReferrerControl = function() {
             }
         },
 
-        onMenuitemCommand: function(event) {
+        onPrefMenuitemCommand: function(event) {
+            let dialog = Utils.getMostRecentWindow(
+                                        'ReferrerControl:Preferences');
+            if (dialog) {
+                dialog.focus();
+            } else {
+                let window = event.target.ownerDocument.defaultView;
+                window.openDialog(
+                        'chrome://referrercontrol/content/options.xul', '',
+                        'chrome,titlebar,toolbar,centerscreen,dialog=no');
+            }
+        },
+        onPolicyMenuitemCommand: function(event) {
             config.defaultPolicy = parseInt(event.target.getAttribute('value'));
         },
 
@@ -772,7 +791,14 @@ let ReferrerControl = function() {
                 return document.createElementNS(NS_XUL, 'menupopup');
             };
 
-            let createMenuitems = function() {
+            let createPrefMenuitem = function() {
+                let menuitem = document.createElementNS(NS_XUL, 'menuitem');
+                menuitem.setAttribute('class', 'pref');
+                menuitem.setAttribute('label', _('openPreferences'));
+                return menuitem;
+            };
+
+            let createPolicyMenuitems = function() {
                 let {defaultPolicy} = config;
                 let menuitems = [];
                 for (let [code, name] of POLICIES) {
@@ -790,14 +816,24 @@ let ReferrerControl = function() {
                 return menuitems;
             };
 
-            let button = createButton();
-            button.addEventListener('command', this.createButtonCommand());
-
             let menupopup = createMenupopup();
-            for (let menuitem of createMenuitems()) {
-                menuitem.addEventListener('command', this.onMenuitemCommand);
+
+            let prefMenuitem = createPrefMenuitem();
+            prefMenuitem.addEventListener('command',
+                                          this.onPrefMenuitemCommand);
+            let menusep = document.createElementNS(NS_XUL, 'menuseparator');
+
+            menupopup.appendChild(prefMenuitem);
+            menupopup.appendChild(menusep);
+
+            for (let menuitem of createPolicyMenuitems()) {
+                menuitem.addEventListener('command',
+                                          this.onPolicyMenuitemCommand);
                 menupopup.appendChild(menuitem);
             }
+
+            let button = createButton();
+            button.addEventListener('command', this.createButtonCommand());
             button.appendChild(menupopup);
             return button;
         }
