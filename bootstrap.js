@@ -548,6 +548,10 @@ let ReferrerControl = function() {
         [5, _('targetDomain')],
         [6, _('targetUrl')]
     ];
+    const ACTIVATED_TOOLTIPTEXT = EXTENSION_NAME + '\n' +
+                                  _('activatedTooltip');
+    const DEACTIVATED_TOOLTIPTEXT = EXTENSION_NAME + '\n' +
+                                    _('deactivatedTooltip');
 
     let config = {
         firstRun: true,
@@ -721,8 +725,10 @@ let ReferrerControl = function() {
                 let button = document.getElementById(BUTTON_ID);
                 if (activated) {
                     button.removeAttribute('disabled');
+                    button.setAttribute('tooltiptext', ACTIVATED_TOOLTIPTEXT);
                 } else {
                     button.setAttribute('disabled', 'yes');
+                    button.setAttribute('tooltiptext', DEACTIVATED_TOOLTIPTEXT);
                 }
                 let menuitems = button.getElementsByTagName('menuitem');
                 for (let menuitem of menuitems) {
@@ -782,8 +788,11 @@ let ReferrerControl = function() {
                     label: EXTENSION_NAME,
                     tooltiptext: EXTENSION_NAME,
                 };
-                if (!config.activated) {
+                if (config.activated) {
+                    attrs.tooltiptext = ACTIVATED_TOOLTIPTEXT;
+                } else {
                     attrs.disabled = 'yes';
+                    attrs.tooltiptext = DEACTIVATED_TOOLTIPTEXT;
                 }
                 let button = document.createElementNS(NS_XUL, 'toolbarbutton');
                 Utils.setAttrs(button, attrs);
