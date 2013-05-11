@@ -4,10 +4,11 @@
 
 <dialog id="editor"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        buttons="accept,cancel"
+        buttons="accept,cancel,help"
         onload="onDocumentLoad();"
         ondialogaccept="return doAccept();"
         ondialogcancel="return doCancel();"
+        ondialoghelp="return doHelp();"
         width="480">
 
     <stringbundleset>
