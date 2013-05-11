@@ -17,7 +17,7 @@
 <!ENTITY Policy.TargetDomain.Tooltip "修改為目標地址的根域名">
 <!ENTITY Policy.TargetUrl "目標地址">
 <!ENTITY Policy.TargetUrl.Tooltip "修改為目標地址">
-<!ENTITY Policy.CustomUrl "自定義地址">
+<!ENTITY Policy.CustomUrl "自設地址">
 <!ENTITY Policy.CustomUrl.Tooltip "自行填寫地址">
 
 <!ENTITY Menu.New "新建">
