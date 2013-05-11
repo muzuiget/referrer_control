@@ -751,10 +751,17 @@ let ReferrerControl = function() {
         createButtonCommand: function() {
             let that = this; // damn it
             return function(event) {
+
+                let target = event.target;
+
                 // click menuitem auto activate button
-                if (event.target === this) {
+                if (target === this) {
                     that.toggle();
-                } else {
+                    return;
+                }
+
+                // event fire from policyMenuitem
+                if (target.className === 'policy') {
                     that.toggle(true);
                 }
             }
@@ -815,6 +822,7 @@ let ReferrerControl = function() {
                 let menuitems = [];
                 for (let [code, name] of POLICIES) {
                     let attrs = {
+                        'class': 'policy',
                         label: name,
                         value: code,
                         name: 'referrercontrol-policy',
