@@ -1,9 +1,75 @@
 "use strict"
 
-const {classes: Cc, interfaces: Ci} = Components;
+const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 const NS_XUL = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
 
 /* library */
+
+const Utils = (function() {
+
+    Cu.import('resource://gre/modules/NetUtil.jsm');
+    Cu.import('resource://gre/modules/FileUtils.jsm');
+
+    const filePickerClass = Cc['@mozilla.org/filepicker;1'];
+    const unicodeConverterClass = Cc['@mozilla.org/intl/scriptableunicodeconverter'];
+    const dirService = Cc['@mozilla.org/file/directory_service;1']
+                         .getService(Ci.nsIProperties);
+
+    let _createFilePicker = function(mode, title, filter, defaultName) {
+        let dialog = filePickerClass.createInstance(Ci.nsIFilePicker);
+        dialog.init(window, title, mode);
+        dialog.appendFilter(filter, filter);
+        dialog.defaultString = defaultName;
+        dialog.displayDirectory = dirService.get('Home', Ci.nsIFile);
+        return dialog;
+    };
+
+    let createOpenFilePicker = _createFilePicker.bind(
+                                        this, Ci.nsIFilePicker.modeOpen);
+
+    let createSaveFilePicker = _createFilePicker.bind(
+                                        this, Ci.nsIFilePicker.modeSave);
+
+
+    let _createUnicodeConverter = function() {
+        return unicodeConverterClass.createInstance(Ci.nsIScriptableUnicodeConverter);
+    };
+
+    let readFileToString = function(fileObject, callback) {
+        NetUtil.asyncFetch(fileObject, function(inputStream, statusCode) {
+            if (!Components.isSuccessCode(statusCode)) {
+                callback.fail(statusCode);
+                return;
+            }
+            let text = NetUtil.readInputStreamToString(
+                                    inputStream, inputStream.available());
+            callback.success(text);
+        });
+    };
+
+    let writeStringToFile = function(fileObject, text, callback) {
+        let outputStream = FileUtils.openSafeFileOutputStream(fileObject);
+        let converter = _createUnicodeConverter();
+        converter.charset = 'UTF-8';
+        let inputStream = converter.convertToInputStream(text);
+
+        NetUtil.asyncCopy(inputStream, outputStream, function(statusCode) {
+            if (Components.isSuccessCode(statusCode)) {
+                callback.success();
+            } else {
+                callback.fail(statusCode);
+            }
+        });
+    };
+
+    let exports = {
+        createOpenFilePicker: createOpenFilePicker,
+        createSaveFilePicker: createSaveFilePicker,
+        readFileToString: readFileToString,
+        writeStringToFile: writeStringToFile,
+    }
+    return exports;
+})();
 
 const Pref = function(branchRoot) {
 
@@ -60,19 +126,28 @@ let initPolicyNames = function() {
                    _('targetHost'), _('targetDomain')];
 };
 
+let buildRulesFromJsonRules = function(jsonRules) {
+    let rules = [];
+    for (let jsonRule of jsonRules) {
+
+        let rule = {};
+        rule.source = jsonRule.source || '';
+        rule.target = jsonRule.target || '';
+        rule.value = jsonRule.value;
+        rule.comment = jsonRule.comment || '';
+
+        // ignore the entry if source and target both are empty
+        if (rule.source || rule.target) {
+            rules.push(rule);
+        }
+    }
+    return rules;
+};
+
 let pref = Pref(PREF_BRANCH);
 let customRules = (function() {
     let jsonRules = JSON.parse(pref.getString('customRules') || '[]');
-    let customRules = [];
-    for (let jsonRule of jsonRules) {
-        let customRule = {};
-        customRule.source = jsonRule.source || '';
-        customRule.target = jsonRule.target || '';
-        customRule.value = jsonRule.value;
-        customRule.comment = jsonRule.comment || '';
-        customRules.push(customRule);
-    }
-    return customRules;
+    return buildRulesFromJsonRules(jsonRules);
 })();
 
 let createTreeItem = function(index, rule) {
@@ -126,11 +201,20 @@ let updatePref = function() {
 };
 
 let refreshUI = function() {
+    // recreate the rule treeview
     let list = document.getElementById('customRules-list');
     list.innerHTML = '';
     for (let i = 0; i < customRules.length; i += 1) {
         let treeitem = createTreeItem(i + 1, customRules[i]);
         list.appendChild(treeitem);
+    }
+
+    // disable export menuitem when no custom rules
+    let exportMenuitem = document.getElementById('customRules-export');
+    if (customRules.length == 0) {
+        exportMenuitem.setAttribute('disabled', true);
+    } else {
+        exportMenuitem.removeAttribute('disabled');
     }
 };
 
@@ -142,11 +226,97 @@ let openEditor = function(rule) {
 
 /* rule control */
 
+let mergeRules = function(spareRules) {
+
+    let getSameCustomRule = function(spareRule) {
+        // if "source" and "target" is same, treat as same rule
+        for (let customRule of customRules) {
+            if (customRule.source == spareRule.source &&
+                    customRule.target == spareRule.target) {
+                return customRule;
+            }
+        }
+        return null;
+    };
+
+    for (let spareRule of spareRules) {
+        let sameCustomRule = getSameCustomRule(spareRule);
+
+        // if exists same customRule, then update the "value" and comment,
+        // otherwise just append it.
+        if (sameCustomRule) {
+            sameCustomRule.value = spareRule.value;
+            sameCustomRule.comment = spareRule.comment;
+        } else {
+            customRules.push(spareRule);
+        }
+    }
+
+    updatePref();
+    refreshUI();
+};
+
+let importRules = function(fileObject) {
+
+    let callback = {
+        success: function(text) {
+            let jsonRules;
+            try {
+                jsonRules = JSON.parse(text).rules;
+            } catch(error) {
+                alert(_('notAvaiableRuleFile'));
+                return;
+            }
+
+            let spareRules;
+            if (jsonRules && jsonRules.length > 0) {
+                spareRules = buildRulesFromJsonRules(jsonRules);
+            } else {
+                spareRules = [];
+            }
+
+            if (spareRules.length == 0) {
+                alert(_('notAvaiableRuleFile'));
+                return;
+            }
+
+            mergeRules(spareRules);
+        },
+
+        fail: function(statusCode) {
+            alert(_('readFileFail').replace('${code}', statusCode));
+        },
+    };
+
+    Utils.readFileToString(fileObject, callback);
+
+};
+
+let exportRules = function(fileObject) {
+
+    let jsonObject = {
+        title: _('ruleFileTitle'),
+        date: (new Date()).toLocaleFormat('%Y-%m-%d %H:%M:%S'),
+        rules: customRules,
+    };
+    let jsonText = JSON.stringify(jsonObject, null, '    ');
+
+    let callback = {
+        success: function() {},
+        fail: function(statusCode) {
+            alert(_('writeFileFail').replace('${code}', statusCode));
+        },
+    };
+
+    Utils.writeStringToFile(fileObject, jsonText, callback);
+
+};
+
 let newRule = function() {
     let rule = {
         source: '',
         target: '',
-        value: 1, // remove
+        value: 1, // the "remove" policy
         comment: '',
     }
 
@@ -187,6 +357,26 @@ let clearRules = function() {
 };
 
 /* content-menu */
+
+let onImportCommand = function() {
+    let dialog = Utils.createOpenFilePicker(
+                        _('importTitle'), '*.json', 'referrer_control.json');
+    dialog.open(function(result) {
+        if (result != Ci.nsIFilePicker.returnCancel) {
+            importRules(dialog.file);
+        }
+    });
+};
+
+let onExportCommand = function() {
+    let dialog = Utils.createSaveFilePicker(
+                        _('exportTitle'), '*.json', 'referrer_control.json');
+    dialog.open(function(result) {
+        if (result != Ci.nsIFilePicker.returnCancel) {
+            exportRules(dialog.file);
+        }
+    });
+};
 
 let onNewCommand = function() {
     newRule();

@@ -64,6 +64,13 @@
 
     <popupset>
         <menupopup id="customRules-menu">
+            <menuitem id="customRules-import" label="&Menu.Import;"
+                      accesskey="&Menu.Import.Accesskey;"
+                      oncommand="onImportCommand();"/>
+            <menuitem id="customRules-export" label="&Menu.Export;"
+                      accesskey="&Menu.Export.Accesskey;"
+                      oncommand="onExportCommand();"/>
+            <menuseparator/>
             <menuitem id="customRules-new" label="&Menu.New;"
                       accesskey="&Menu.New.Accesskey;"
                       oncommand="onNewCommand();"/>

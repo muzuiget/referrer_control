@@ -20,6 +20,10 @@
 <!ENTITY Policy.CustomUrl "custom url">
 <!ENTITY Policy.CustomUrl.Tooltip "Custom specific url">
 
+<!ENTITY Menu.Import "Import">
+<!ENTITY Menu.Import.Accesskey "I">
+<!ENTITY Menu.Export "Export">
+<!ENTITY Menu.Export.Accesskey "X">
 <!ENTITY Menu.New "New">
 <!ENTITY Menu.New.Accesskey "N">
 <!ENTITY Menu.Edit "Edit">

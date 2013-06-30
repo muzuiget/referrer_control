@@ -20,13 +20,17 @@
 <!ENTITY Policy.CustomUrl "自設地址">
 <!ENTITY Policy.CustomUrl.Tooltip "自行填寫地址">
 
-<!ENTITY Menu.New "新建">
+<!ENTITY Menu.Import "匯入(I)">
+<!ENTITY Menu.Import.Accesskey "I">
+<!ENTITY Menu.Export "匯出(X)">
+<!ENTITY Menu.Export.Accesskey "X">
+<!ENTITY Menu.New "新建(N)">
 <!ENTITY Menu.New.Accesskey "N">
-<!ENTITY Menu.Edit "編輯">
+<!ENTITY Menu.Edit "編輯(E)">
 <!ENTITY Menu.Edit.Accesskey "E">
-<!ENTITY Menu.Remove "移除">
+<!ENTITY Menu.Remove "移除(R)">
 <!ENTITY Menu.Remove.Accesskey "R">
-<!ENTITY Menu.Clear "清空">
+<!ENTITY Menu.Clear "清空(C)">
 <!ENTITY Menu.Clear.Accesskey "C">
 
 <!ENTITY Rule.Source "來源">
