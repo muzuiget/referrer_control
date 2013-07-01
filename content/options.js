@@ -15,10 +15,9 @@ const Utils = (function() {
     const dirService = Cc['@mozilla.org/file/directory_service;1']
                          .getService(Ci.nsIProperties);
 
-    let _createFilePicker = function(mode, title, filter, defaultName) {
+    let _createFilePicker = function(mode, title, defaultName) {
         let dialog = filePickerClass.createInstance(Ci.nsIFilePicker);
         dialog.init(window, title, mode);
-        dialog.appendFilter(filter, filter);
         dialog.defaultString = defaultName;
         dialog.displayDirectory = dirService.get('Home', Ci.nsIFile);
         return dialog;
@@ -258,12 +257,87 @@ let mergeRules = function(spareRules) {
 
 let importRules = function(fileObject) {
 
+
+    let parseRefControlRuleFile = function(text) {
+
+        let createJsonRule = function(line) {
+            let sepPos = line.indexOf('=');
+            let siteString = line.slice(0, sepPos);
+            let actionString = line.slice(sepPos + 1);
+
+            let jsonRule = {};
+
+            // convert target
+            // RefControl use domain, partly match, but Referrer Control use
+            // full match, so convert site string
+            //     google.com
+            // to regular expression
+            //     'https?://(google\.com|.+\.google\.com)/.*'
+            // also need to add "/" at the start and end, let the rule parser
+            // treat it as regular expression.
+            let targetTpl = '/https?://(${domain}|.+\.${domain})/.*/';
+            let domain = siteString.replace('.', '\\.');
+            jsonRule.target = targetTpl.replace('${domain}', domain)
+                                       .replace('${domain}', domain);
+
+            // convert policy
+            let actions = actionString.split(':');
+            for (let action of actions) {
+
+                // Referrer Control handle third-party request globally,
+                // so ignore the setting in RefControl
+                if (action === '@3RDPARTY') {
+                    continue;
+                }
+
+                // the "skip" policy
+                if (action === '@NORMAL') {
+                    jsonRule.value = 0;
+                    break;
+                }
+
+                // the "targetHost" policy
+                if (action === '@FORGE') {
+                    jsonRule.value = 4;
+                    break;
+                }
+
+                // the "remove" policy
+                if (action === '') {
+                    jsonRule.value = 1;
+                    break;
+                }
+
+                // the "customUrl" policy
+                jsonRule.value = action;
+                break;
+            }
+
+            // add the line content to comment let user know this rule
+            // is convert from RefControl rule file
+            jsonRule.comment = 'RefControl: ' + line;
+
+            return jsonRule;
+        };
+
+        let lines = text.split('\n')
+                        .slice(1) // skip first line '[RefControl]'
+                        .filter(function(s) s.trim()); // remove empty lines
+        let jsonRules = lines.map(createJsonRule);
+        return jsonRules;
+    }
+
     let callback = {
         success: function(text) {
             let jsonRules;
             try {
-                jsonRules = JSON.parse(text).rules;
+                if (text.startsWith('[RefControl]')) {
+                    jsonRules = parseRefControlRuleFile(text);
+                } else {
+                    jsonRules = JSON.parse(text).rules;
+                }
             } catch(error) {
+                Cu.reportError(error);
                 alert(_('notAvaiableRuleFile'));
                 return;
             }
@@ -358,9 +432,13 @@ let clearRules = function() {
 
 /* content-menu */
 
+let DEFAULT_FILENAME = 'referrer_control.json';
+
 let onImportCommand = function() {
-    let dialog = Utils.createOpenFilePicker(
-                        _('importTitle'), '*.json', 'referrer_control.json');
+    let dialog = Utils.createOpenFilePicker(_('importTitle'), DEFAULT_FILENAME);
+    dialog.appendFilter(_('jsonFiles'), '*.json');
+    dialog.appendFilter(_('allFiles'), '*'); // for RefControl rule file
+
     dialog.open(function(result) {
         if (result != Ci.nsIFilePicker.returnCancel) {
             importRules(dialog.file);
@@ -369,8 +447,9 @@ let onImportCommand = function() {
 };
 
 let onExportCommand = function() {
-    let dialog = Utils.createSaveFilePicker(
-                        _('exportTitle'), '*.json', 'referrer_control.json');
+    let dialog = Utils.createSaveFilePicker(_('exportTitle'), DEFAULT_FILENAME);
+    dialog.appendFilter(_('jsonFiles'), '*.json');
+
     dialog.open(function(result) {
         if (result != Ci.nsIFilePicker.returnCancel) {
             exportRules(dialog.file);
