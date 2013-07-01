@@ -208,12 +208,15 @@ let refreshUI = function() {
         list.appendChild(treeitem);
     }
 
-    // disable export menuitem when no custom rules
+    // disable "export" and "clear" menuitems when no custom rules
     let exportMenuitem = document.getElementById('customRules-export');
+    let clearMenuitem = document.getElementById('customRules-clear');
     if (customRules.length == 0) {
         exportMenuitem.setAttribute('disabled', true);
+        clearMenuitem.setAttribute('disabled', true);
     } else {
         exportMenuitem.removeAttribute('disabled');
+        clearMenuitem.removeAttribute('disabled');
     }
 };
 
@@ -470,7 +473,9 @@ let onEditCommand = function() {
 let onRemoveCommand = function() {
     let treeview = document.getElementById('customRules-tree').view;
     let index = treeview.selection.currentIndex;
-    removeRule(index);
+    if (index !== -1) {
+        removeRule(index);
+    }
 };
 
 let onClearCommand = function() {
