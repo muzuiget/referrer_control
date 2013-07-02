@@ -284,36 +284,31 @@ let importRules = function(fileObject) {
                                        .replace('${domain}', domain);
 
             // convert policy
-            let actions = actionString.split(':');
-            for (let action of actions) {
+            // Referrer Control handle third-party request globally,
+            // so ignore the setting in RefControl
+            let action;
+            if (actionString.startsWith('@3RDPARTY:')) {
+                action = actionString.replace('@3RDPARTY:', '');
+            } else {
+                action = actionString;
+            }
+            switch (action) {
 
-                // Referrer Control handle third-party request globally,
-                // so ignore the setting in RefControl
-                if (action === '@3RDPARTY') {
-                    continue;
-                }
-
-                // the "skip" policy
-                if (action === '@NORMAL') {
-                    jsonRule.value = 0;
+                case '@NORMAL':
+                    jsonRule.value = 0; // skip
                     break;
-                }
 
-                // the "targetHost" policy
-                if (action === '@FORGE') {
-                    jsonRule.value = 4;
+                case '@FORGE':
+                    jsonRule.value = 4; // targetHost
                     break;
-                }
 
-                // the "remove" policy
-                if (action === '') {
-                    jsonRule.value = 1;
+                case '':
+                    jsonRule.value = 1; // remove
                     break;
-                }
 
-                // the "customUrl" policy
-                jsonRule.value = action;
-                break;
+                default:
+                    jsonRule.value = action; // customUrl
+                    break;
             }
 
             // add the line content to comment let user know this rule
