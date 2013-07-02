@@ -93,8 +93,11 @@
 
             <treecols>
                 <treecol id="index" label="" flex="0"/>
+                <splitter class="tree-splitter" />
                 <treecol id="source" label="&Rule.Source;" flex="1"/>
+                <splitter class="tree-splitter" />
                 <treecol id="target" label="&Rule.Target;" flex="1"/>
+                <splitter class="tree-splitter" />
                 <treecol id="value" label="&Rule.Value;" flex="1"/>
             </treecols>
 
