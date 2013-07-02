@@ -449,7 +449,6 @@ let ruleCompiler = function(text) {
 
     let toRegExp = Utils.wildcard2RegExp;
     let fakeRegExp = Utils.fakeTrueTest;
-    let isUrlReg = new RegExp('^https\?://');
 
     let rules = [];
     for (let item of items) {

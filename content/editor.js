@@ -40,11 +40,10 @@ let doAccept = function() {
         return false;
     }
 
-    let isUrlReg = new RegExp('^https\?://');
     let menuitemPolicy = document.getElementById('value-menulist').value.trim();
     let customUrl = document.getElementById('value-textbox').value.trim();
     let isUrl = menuitemPolicy === '-1';
-    if (isUrl && !isUrlReg.test(customUrl)) {
+    if (isUrl && customUrl === '') {
         alert(_('customUrlInvaildWarnning'));
         return false;
     }
