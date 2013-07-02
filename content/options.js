@@ -324,8 +324,9 @@ let importRules = function(fileObject) {
         };
 
         let lines = text.split('\n')
+                        .map(function(s) s.trim()) // remove spaces
                         .slice(1) // skip first line '[RefControl]'
-                        .filter(function(s) s.trim()); // remove empty lines
+                        .filter(function(s) s !== ''); // remove empty lines
         let jsonRules = lines.map(createJsonRule);
         return jsonRules;
     }
