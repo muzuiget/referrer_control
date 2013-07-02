@@ -440,8 +440,9 @@ let DEFAULT_FILENAME = 'referrer_control.json';
 
 let onImportCommand = function() {
     let dialog = Utils.createOpenFilePicker(_('importTitle'), DEFAULT_FILENAME);
-    dialog.appendFilter(_('jsonFiles'), '*.json');
-    dialog.appendFilter(_('allFiles'), '*'); // for RefControl rule file
+
+    // *.txt is for RefControl rule file
+    dialog.appendFilter(_('ruleFiles'), '*.json; *.txt');
 
     dialog.open(function(result) {
         if (result != Ci.nsIFilePicker.returnCancel) {
@@ -452,7 +453,7 @@ let onImportCommand = function() {
 
 let onExportCommand = function() {
     let dialog = Utils.createSaveFilePicker(_('exportTitle'), DEFAULT_FILENAME);
-    dialog.appendFilter(_('jsonFiles'), '*.json');
+    dialog.appendFilter(_('ruleFiles'), '*.json');
 
     dialog.open(function(result) {
         if (result != Ci.nsIFilePicker.returnCancel) {
