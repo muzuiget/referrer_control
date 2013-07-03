@@ -20,31 +20,31 @@
             src="chrome://referrercontrol/content/rule_preferences.js" />
 
     <popupset>
-        <menupopup id="customRules-menu">
-            <menuitem id="customRules-import" label="&Menu.Import;"
+        <menupopup id="rules-menu">
+            <menuitem id="rules-import" label="&Menu.Import;"
                       accesskey="&Menu.Import.Accesskey;"
                       oncommand="onImportCommand();"/>
-            <menuitem id="customRules-export" label="&Menu.Export;"
+            <menuitem id="rules-export" label="&Menu.Export;"
                       accesskey="&Menu.Export.Accesskey;"
                       oncommand="onExportCommand();"/>
             <menuseparator/>
-            <menuitem id="customRules-new" label="&Menu.New;"
+            <menuitem id="rules-new" label="&Menu.New;"
                       accesskey="&Menu.New.Accesskey;"
                       oncommand="onNewCommand();"/>
-            <menuitem id="customRules-edit" label="&Menu.Edit;"
+            <menuitem id="rules-edit" label="&Menu.Edit;"
                       accesskey="&Menu.Edit.Accesskey;"
                       oncommand="onEditCommand();"/>
-            <menuitem id="customRules-remove" label="&Menu.Remove;"
+            <menuitem id="rules-remove" label="&Menu.Remove;"
                       accesskey="&Menu.Remove.Accesskey;"
                       oncommand="onRemoveCommand();"/>
-            <menuitem id="customRules-clear" label="&Menu.Clear;"
+            <menuitem id="rules-clear" label="&Menu.Clear;"
                       accesskey="&Menu.Clear.Accesskey;"
                       oncommand="onClearCommand();"/>
         </menupopup>
     </popupset>
 
     <vbox flex="1">
-        <tree id="customRules-tree" flex="1" rows="12" seltype="single"
+        <tree id="rules-tree" flex="1" rows="12" seltype="single"
             ondblclick="onTreeDblclick(event);">
 
             <treecols>
@@ -57,16 +57,11 @@
                 <treecol id="value" label="&Rule.Value;" flex="1"/>
             </treecols>
 
-            <treechildren id="customRules-list" context="customRules-menu">
+            <treechildren id="rules-list" context="rules-menu">
             </treechildren>
 
         </tree>
 
-        <!--
-        <textbox flex="1" multiline="true" wrap="off" rows="9" cols="54"
-                style="font-family: 'DejaVu Sans Mono',monospace;"
-                preference="customRules" />
-        -->
     </vbox>
 
 </dialog>

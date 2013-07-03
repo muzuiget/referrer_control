@@ -1,6 +1,6 @@
 <!ENTITY IgnoreSameDomains "Ignore same domains request">
 <!ENTITY StrictSameDomains "Treat subdomains as different domains">
-<!ENTITY CustomRules "Custom url-specific rules">
+<!ENTITY SiteSpecificRules "Site-specific rules">
 <!ENTITY OpenRulePreferences "Rule preferences">
 <!ENTITY DefaultPolicy "Default policy">
 

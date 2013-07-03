@@ -112,6 +112,10 @@ const EDITOR_NAME = 'referrercontrol:ruleeditor';
 const EDITOR_FEATURES = 'chrome,modal,centerscreen';
 const PREF_BRANCH = 'extensions.referrercontrol.';
 
+// I want to rename to "rules" in later version
+// but can't break compatible, maybe I need write migrate code.
+const PREF_NAME_RULES = 'customRules';
+
 let _ = null;
 let loadLocalization = function() {
     let stringbundle = document.getElementById('referrercontrol-strings');
@@ -144,8 +148,8 @@ let buildRulesFromJsonRules = function(jsonRules) {
 };
 
 let pref = Pref(PREF_BRANCH);
-let customRules = (function() {
-    let jsonRules = JSON.parse(pref.getString('customRules') || '[]');
+let Rules = (function() {
+    let jsonRules = JSON.parse(pref.getString(PREF_NAME_RULES) || '[]');
     return buildRulesFromJsonRules(jsonRules);
 })();
 
@@ -179,32 +183,32 @@ let createTreeItem = function(index, rule) {
 
 let updatePref = function() {
     let jsonRules = [];
-    for (let customRule of customRules) {
+    for (let rule of Rules) {
         let jsonRule = {};
-        jsonRule.source = customRule.source || undefined;
-        jsonRule.target = customRule.target || undefined;
-        jsonRule.value = customRule.value;
-        jsonRule.comment = customRule.comment || undefined;
+        jsonRule.source = rule.source || undefined;
+        jsonRule.target = rule.target || undefined;
+        jsonRule.value = rule.value;
+        jsonRule.comment = rule.comment || undefined;
         jsonRules.push(jsonRule);
     }
 
     let jsonText = JSON.stringify(jsonRules, null, '    ');
-    pref.setString('customRules', jsonText);
+    pref.setString(PREF_NAME_RULES, jsonText);
 };
 
 let refreshUI = function() {
     // recreate the rule treeview
-    let list = document.getElementById('customRules-list');
+    let list = document.getElementById('rules-list');
     list.innerHTML = '';
-    for (let i = 0; i < customRules.length; i += 1) {
-        let treeitem = createTreeItem(i + 1, customRules[i]);
+    for (let i = 0; i < Rules.length; i += 1) {
+        let treeitem = createTreeItem(i + 1, Rules[i]);
         list.appendChild(treeitem);
     }
 
-    // disable "export" and "clear" menuitems when no custom rules
-    let exportMenuitem = document.getElementById('customRules-export');
-    let clearMenuitem = document.getElementById('customRules-clear');
-    if (customRules.length == 0) {
+    // disable "export" and "clear" menuitems when no rules in the list
+    let exportMenuitem = document.getElementById('rules-export');
+    let clearMenuitem = document.getElementById('rules-clear');
+    if (Rules.length == 0) {
         exportMenuitem.setAttribute('disabled', true);
         clearMenuitem.setAttribute('disabled', true);
     } else {
@@ -223,27 +227,27 @@ let openEditor = function(rule) {
 
 let mergeRules = function(spareRules) {
 
-    let getSameCustomRule = function(spareRule) {
+    let getSameRule = function(spareRule) {
         // if "source" and "target" is same, treat as same rule
-        for (let customRule of customRules) {
-            if (customRule.source == spareRule.source &&
-                    customRule.target == spareRule.target) {
-                return customRule;
+        for (let rule of Rules) {
+            if (rule.source == spareRule.source &&
+                    rule.target == spareRule.target) {
+                return rule;
             }
         }
         return null;
     };
 
     for (let spareRule of spareRules) {
-        let sameCustomRule = getSameCustomRule(spareRule);
+        let sameRule = getSameRule(spareRule);
 
-        // if exists same customRule, then update the "value" and comment,
+        // if exists same rule, then update the "value" and comment,
         // otherwise just append it.
-        if (sameCustomRule) {
-            sameCustomRule.value = spareRule.value;
-            sameCustomRule.comment = spareRule.comment;
+        if (sameRule) {
+            sameRule.value = spareRule.value;
+            sameRule.comment = spareRule.comment;
         } else {
-            customRules.push(spareRule);
+            Rules.push(spareRule);
         }
     }
 
@@ -363,7 +367,7 @@ let exportRules = function(fileObject) {
     let jsonObject = {
         title: _('ruleFileTitle'),
         date: (new Date()).toLocaleFormat('%Y-%m-%d %H:%M:%S'),
-        rules: customRules,
+        rules: Rules,
     };
     let jsonText = JSON.stringify(jsonObject, null, '    ');
 
@@ -390,13 +394,13 @@ let newRule = function() {
         return;
     }
 
-    customRules.push(rule);
+    Rules.push(rule);
     updatePref();
     refreshUI();
 };
 
 let editRule = function(index) {
-    let rule = customRules[index];
+    let rule = Rules[index];
 
     if (!openEditor(rule)) {
         return;
@@ -407,7 +411,7 @@ let editRule = function(index) {
 };
 
 let removeRule = function(index) {
-    customRules.splice(index, 1);
+    Rules.splice(index, 1);
     updatePref();
     refreshUI();
 };
@@ -417,7 +421,7 @@ let clearRules = function() {
     if (!response) {
         return;
     }
-    customRules = [];
+    Rules = [];
     updatePref();
     refreshUI();
 };
@@ -455,13 +459,13 @@ let onNewCommand = function() {
 };
 
 let onEditCommand = function() {
-    let treeview = document.getElementById('customRules-tree').view;
+    let treeview = document.getElementById('rules-tree').view;
     let index = treeview.selection.currentIndex;
     editRule(index);
 };
 
 let onRemoveCommand = function() {
-    let treeview = document.getElementById('customRules-tree').view;
+    let treeview = document.getElementById('rules-tree').view;
     let index = treeview.selection.currentIndex;
     if (index !== -1) {
         removeRule(index);

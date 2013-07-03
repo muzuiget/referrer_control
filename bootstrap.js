@@ -580,6 +580,11 @@ let ReferrerControl = function() {
     const BUTTON_ID = 'referrercontrol-button';
     const STYLE_URI = 'chrome://referrercontrol/skin/browser.css';
     const PREF_BRANCH = 'extensions.referrercontrol.';
+
+    // I want to rename to "rules" in later version
+    // but can't break compatible, maybe I need write migrate code.
+    const PREF_NAME_RULES = 'customRules';
+
     const POLICIES = [
         [0, _('skip')],
         [1, _('remove')],
@@ -600,7 +605,7 @@ let ReferrerControl = function() {
         ignoreSameDomains: true,
         strictSameDomains: false,
         defaultPolicy: 4, // in pref is name string
-        customRules: [], // in pref is json text
+        rules: [], // in pref is json text
     };
     let pref = Pref(PREF_BRANCH);
 
@@ -640,8 +645,8 @@ let ReferrerControl = function() {
                 config[name] = value;
             }
         },
-        initComplex: function(name, converter, defaultValue) {
-            let text = pref.getString(name);
+        initComplex: function(name, pref_name, converter, defaultValue) {
+            let text = pref.getString(pref_name);
             if (text === null) {
                 pref.setString(name, defaultValue);
                 config[name] = converter(defaultValue);
@@ -662,8 +667,8 @@ let ReferrerControl = function() {
                 config[name] = value;
             }
         },
-        loadComplex: function(name, converter) {
-            let text = pref.getString(name);
+        loadComplex: function(name, pref_name, converter) {
+            let text = pref.getString(pref_name);
             if (text !== null) {
                 config[name] = converter(text);
             }
@@ -676,7 +681,7 @@ let ReferrerControl = function() {
             initBool('ignoreSameDomains');
             initBool('strictSameDomains');
             initInt('defaultPolicy');
-            initComplex('customRules', ruleCompiler, '[]');
+            initComplex('rules', PREF_NAME_RULES, ruleCompiler, '[]');
         },
         reloadConfig: function() {
             let {loadBool, loadInt, loadComplex} = this;
@@ -685,7 +690,7 @@ let ReferrerControl = function() {
             loadBool('ignoreSameDomains');
             loadBool('strictSameDomains');
             loadInt('defaultPolicy');
-            loadComplex('customRules', ruleCompiler);
+            loadComplex('rules', PREF_NAME_RULES, ruleCompiler);
         },
         saveConfig: function() {
             this.stop(); // avoid recursion
@@ -737,7 +742,7 @@ let ReferrerControl = function() {
             }
 
             let {ignoreSameDomains, strictSameDomains,
-                defaultPolicy, customRules} = config;
+                defaultPolicy, rules} = config;
             let {referrer: sourceURI, URI: targetURI} = channel;
 
             // ignore same domains
@@ -748,8 +753,8 @@ let ReferrerControl = function() {
             }
 
             // now find override referrer string
-            let referrer = Referrer.getFor(sourceURI, targetURI,
-                                        customRules, defaultPolicy);
+            let referrer = Referrer.getFor(
+                                sourceURI, targetURI, rules, defaultPolicy);
             if (referrer === null) {
                 return;
             }

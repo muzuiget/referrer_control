@@ -60,7 +60,7 @@ let doAccept = function() {
 };
 
 let doHelp = function() {
-    let helpUrl = 'https://github.com/muzuiget/referrer_control/wiki#custom-rules';
+    let helpUrl = 'https://github.com/muzuiget/referrer_control/wiki#rules';
     let browserWindow = windowMediator.getMostRecentWindow('navigator:browser');
     if (browserWindow) {
         let gBrowser = browserWindow.gBrowser;

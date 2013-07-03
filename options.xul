@@ -9,7 +9,7 @@
     <setting type="bool" pref="extensions.referrercontrol.strictSameDomains"
              title="&StrictSameDomains;" />
 
-    <setting type="control" title="&CustomRules;" >
+    <setting type="control" title="&SiteSpecificRules;" >
         <button id="rule-preferences" label="&OpenRulePreferences;..." />
     </setting>
 
