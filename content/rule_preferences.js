@@ -485,7 +485,7 @@ let onClearCommand = function() {
 
 let onTreeDblclick = function(event) {
     let index = event.target._lastSelectedRow;
-    if (index === -1) {
+    if (index === undefined || index < 0) {
         return;
     }
     editRule(index);
