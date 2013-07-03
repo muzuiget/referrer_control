@@ -604,8 +604,8 @@ let ReferrerControl = function() {
         activated: false,
         ignoreSameDomains: true,
         strictSameDomains: false,
-        defaultPolicy: 4, // in pref is name string
-        rules: [], // in pref is json text
+        defaultPolicy: 1, // the "remove" policy
+        rules: [],
     };
     let pref = Pref(PREF_BRANCH);
 
