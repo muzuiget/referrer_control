@@ -11,6 +11,7 @@
     windowtype="ReferrerControl:Rule Preferences"
     onload="onDocumentLoad();"
     ondialoghelp="return doHelp();"
+    persist="width height sizemode"
     width="540" height="480" >
 
     <stringbundleset>
