@@ -329,6 +329,47 @@ let RequestManager = (function() {
     return exports;
 })();
 
+let ExtensionManager = (function() {
+
+    const obsService = Cc['@mozilla.org/observer-service;1']
+                          .getService(Ci.nsIObserverService);
+
+    const REQUEST_TOPIC = 'addon-options-displayed';
+
+    let observers = [];
+
+    let addObserver = function(observer) {
+        try {
+            obsService.addObserver(observer, REQUEST_TOPIC, false);
+        } catch(error) {
+            trace(error);
+        }
+        observers.push(observers);
+    };
+
+    let removeObserver = function(observer) {
+        try {
+            obsService.removeObserver(observer, REQUEST_TOPIC, false);
+        } catch(error) {
+            trace(error);
+        }
+    };
+
+    let destory = function() {
+        for (let observer of observers) {
+            removeObserver(observer);
+        }
+        observers = null;
+    };
+
+    let exports = {
+        addObserver: addObserver,
+        removeObserver: removeObserver,
+        destory: destory,
+    };
+    return exports;
+})();
+
 const Pref = function(branchRoot) {
 
     const supportsStringClass = Cc['@mozilla.org/supports-string;1'];
@@ -534,6 +575,7 @@ let Referrer = (function() {
 
 let ReferrerControl = function() {
 
+    const EXTENSION_ID = 'referrercontrol@qixinglu.com';
     const EXTENSION_NAME = 'Referrer Control';
     const BUTTON_ID = 'referrercontrol-button';
     const STYLE_URI = 'chrome://referrercontrol/skin/browser.css';
@@ -564,6 +606,7 @@ let ReferrerControl = function() {
 
     let prefObserver;
     let reqObserver;
+    let extObserver;
     let toolbarButtons;
 
     prefObserver = {
@@ -715,6 +758,50 @@ let ReferrerControl = function() {
         }
     };
 
+    extObserver = {
+
+        observing: false,
+
+        observe: function(subject, topic, data) {
+            if (data !== EXTENSION_ID) {
+                return;
+            }
+            try {
+                let document = subject.QueryInterface(Ci.nsIDOMDocument);
+                let button = document.getElementById('rule-preferences');
+                button.addEventListener('command', this.openRuleDialog);
+            } catch(error) {
+                trace(error);
+            }
+        },
+
+        start: function() {
+            if (!this.observing) {
+                ExtensionManager.addObserver(this);
+                this.observing = true;
+            }
+        },
+        stop: function() {
+            if (this.observing) {
+                ExtensionManager.removeObserver(this);
+                this.observing = false;
+            }
+        },
+
+        openRuleDialog: function(event) {
+            let dialog = Utils.getMostRecentWindow(
+                                        'ReferrerControl:Preferences');
+            if (dialog) {
+                dialog.focus();
+            } else {
+                let window = event.target.ownerDocument.defaultView;
+                window.openDialog(
+                        'chrome://referrercontrol/content/options.xul', '',
+                        'chrome,titlebar,toolbar,centerscreen,dialog=no');
+            }
+        },
+    };
+
     toolbarButtons = {
 
         refresh: function() {
@@ -767,16 +854,7 @@ let ReferrerControl = function() {
         },
 
         onPrefMenuitemCommand: function(event) {
-            let dialog = Utils.getMostRecentWindow(
-                                        'ReferrerControl:Preferences');
-            if (dialog) {
-                dialog.focus();
-            } else {
-                let window = event.target.ownerDocument.defaultView;
-                window.openDialog(
-                        'chrome://referrercontrol/content/options.xul', '',
-                        'chrome,titlebar,toolbar,centerscreen,dialog=no');
-            }
+            extObserver.openRuleDialog(event);
         },
         onPolicyMenuitemCommand: function(event) {
             config.defaultPolicy = parseInt(event.target.getAttribute('value'));
@@ -878,6 +956,7 @@ let ReferrerControl = function() {
         prefObserver.initConfig();
         prefObserver.start();
         reqObserver.refresh();
+        extObserver.start();
 
         BrowserManager.run(insertToolbarButton);
         BrowserManager.addListener(insertToolbarButton);
@@ -887,6 +966,7 @@ let ReferrerControl = function() {
         prefObserver.saveConfig();
         prefObserver.stop();
         reqObserver.stop();
+        extObserver.stop();
 
         BrowserManager.run(removeToolbarButton);
         BrowserManager.destory();

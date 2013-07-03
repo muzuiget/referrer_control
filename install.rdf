@@ -8,7 +8,6 @@
     <em:type>2</em:type>
     <em:bootstrap>true</em:bootstrap>
     <em:unpack>false</em:unpack>
-    <em:optionsURL>chrome://referrercontrol/content/options.xul</em:optionsURL>
 
     <!-- Front End MetaData -->
     <em:name>Referrer Control</em:name>
