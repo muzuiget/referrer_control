@@ -107,7 +107,7 @@ const Pref = function(branchRoot) {
 
 /* main */
 
-const EDITOR_XUL = 'chrome://referrercontrol/content/editor.xul';
+const EDITOR_XUL = 'chrome://referrercontrol/content/rule_editor.xul';
 const EDITOR_NAME = 'referrercontrol:ruleeditor';
 const EDITOR_FEATURES = 'chrome,modal,centerscreen';
 const PREF_BRANCH = 'extensions.referrercontrol.';

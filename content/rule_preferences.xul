@@ -3,7 +3,7 @@
 <!DOCTYPE window SYSTEM "chrome://referrercontrol/locale/global.dtd">
 
 <dialog
-    id="referrercontrol-rule-dialog"
+    id="referrercontrol-rule-preferences"
     buttons="accept"
     buttonlabelaccept="&Close;"
     title="Referrer Control &RulePreferences;"
@@ -17,7 +17,7 @@
                       src="chrome://referrercontrol/locale/global.properties"/>
     </stringbundleset>
     <script type="application/x-javascript"
-            src="chrome://referrercontrol/content/options.js" />
+            src="chrome://referrercontrol/content/rule_preferences.js" />
 
     <popupset>
         <menupopup id="customRules-menu">

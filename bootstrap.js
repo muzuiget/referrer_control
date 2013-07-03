@@ -796,7 +796,7 @@ let ReferrerControl = function() {
             } else {
                 let window = event.target.ownerDocument.defaultView;
                 window.openDialog(
-                        'chrome://referrercontrol/content/options.xul', '',
+                        'chrome://referrercontrol/content/rule_preferences.xul', '',
                         'chrome,titlebar,toolbar,centerscreen,dialog=no');
             }
         },

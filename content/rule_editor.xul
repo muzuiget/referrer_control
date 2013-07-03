@@ -2,21 +2,22 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <!DOCTYPE window SYSTEM "chrome://referrercontrol/locale/global.dtd">
 
-<dialog id="editor"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        buttons="accept,cancel,help"
-        onload="onDocumentLoad();"
-        ondialogaccept="return doAccept();"
-        ondialogcancel="return doCancel();"
-        ondialoghelp="return doHelp();"
-        width="480">
+<dialog
+    id="referrercontrol-rule-editor"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    buttons="accept,cancel,help"
+    onload="onDocumentLoad();"
+    ondialogaccept="return doAccept();"
+    ondialogcancel="return doCancel();"
+    ondialoghelp="return doHelp();"
+    width="480">
 
     <stringbundleset>
         <stringbundle id="referrercontrol-strings"
                       src="chrome://referrercontrol/locale/global.properties"/>
     </stringbundleset>
     <script type="application/x-javascript"
-            src="chrome://referrercontrol/content/editor.js" />
+            src="chrome://referrercontrol/content/rule_editor.js" />
 
     <grid>
         <columns>
