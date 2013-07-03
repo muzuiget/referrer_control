@@ -5,11 +5,10 @@
 <dialog
     id="referrercontrol-rule-editor"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    buttons="accept,cancel,help"
+    buttons="accept,cancel"
     onload="onDocumentLoad();"
     ondialogaccept="return doAccept();"
     ondialogcancel="return doCancel();"
-    ondialoghelp="return doHelp();"
     width="480">
 
     <stringbundleset>

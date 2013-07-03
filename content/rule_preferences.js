@@ -14,6 +14,8 @@ const Utils = (function() {
     const unicodeConverterClass = Cc['@mozilla.org/intl/scriptableunicodeconverter'];
     const dirService = Cc['@mozilla.org/file/directory_service;1']
                          .getService(Ci.nsIProperties);
+    const windowMediator = Cc['@mozilla.org/appshell/window-mediator;1']
+                              .getService(Ci.nsIWindowMediator);
 
     let _createFilePicker = function(mode, title, defaultName) {
         let dialog = filePickerClass.createInstance(Ci.nsIFilePicker);
@@ -28,7 +30,6 @@ const Utils = (function() {
 
     let createSaveFilePicker = _createFilePicker.bind(
                                         this, Ci.nsIFilePicker.modeSave);
-
 
     let _createUnicodeConverter = function() {
         return unicodeConverterClass.createInstance(Ci.nsIScriptableUnicodeConverter);
@@ -61,11 +62,15 @@ const Utils = (function() {
         });
     };
 
+    let getMostRecentWindow = windowMediator.getMostRecentWindow
+                                            .bind(windowMediator);
+
     let exports = {
         createOpenFilePicker: createOpenFilePicker,
         createSaveFilePicker: createSaveFilePicker,
         readFileToString: readFileToString,
         writeStringToFile: writeStringToFile,
+        getMostRecentWindow: getMostRecentWindow,
     }
     return exports;
 })();
@@ -484,6 +489,18 @@ let onTreeDblclick = function(event) {
         return;
     }
     editRule(index);
+};
+
+let doHelp = function() {
+    let helpUrl = 'https://github.com/muzuiget/referrer_control/wiki#rules';
+    let browserWindow = Utils.getMostRecentWindow('navigator:browser');
+    if (browserWindow) {
+        let gBrowser = browserWindow.gBrowser;
+        gBrowser.selectedTab = gBrowser.addTab(helpUrl);
+    } else {
+        window.open(helpUrl);
+    }
+    return false;
 };
 
 let onDocumentLoad = function() {

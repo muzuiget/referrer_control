@@ -62,9 +62,8 @@ const Utils = (function() {
         }
     };
 
-    let getMostRecentWindow = function(winType) {
-        return windowMediator.getMostRecentWindow(winType);
-    };
+    let getMostRecentWindow = windowMediator.getMostRecentWindow
+                                            .bind(windowMediator);
 
     let exports = {
         wildcard2RegExp: wildcard2RegExp,

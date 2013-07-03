@@ -4,12 +4,13 @@
 
 <dialog
     id="referrercontrol-rule-preferences"
-    buttons="accept"
+    buttons="accept, help"
     buttonlabelaccept="&Close;"
     title="Referrer Control &RulePreferences;"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     windowtype="ReferrerControl:Rule Preferences"
     onload="onDocumentLoad();"
+    ondialoghelp="return doHelp();"
     width="540" height="480" >
 
     <stringbundleset>

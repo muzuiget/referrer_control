@@ -1,8 +1,6 @@
 "use strict";
 
 const {classes: Cc, interfaces: Ci} = Components;
-const windowMediator = Cc['@mozilla.org/appshell/window-mediator;1']
-                          .getService(Ci.nsIWindowMediator);
 
 let _ = null;
 let loadLocalization = function() {
@@ -57,18 +55,6 @@ let doAccept = function() {
     rule.value = isUrl ? customUrl : parseInt(menuitemPolicy);
     rule.comment = comment;
     return true;
-};
-
-let doHelp = function() {
-    let helpUrl = 'https://github.com/muzuiget/referrer_control/wiki#rules';
-    let browserWindow = windowMediator.getMostRecentWindow('navigator:browser');
-    if (browserWindow) {
-        let gBrowser = browserWindow.gBrowser;
-        gBrowser.selectedTab = gBrowser.addTab(helpUrl);
-    } else {
-        window.open(helpUrl);
-    }
-    return false;
 };
 
 let doCancel = function(){
