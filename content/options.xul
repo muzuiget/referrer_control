@@ -2,12 +2,14 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <!DOCTYPE window SYSTEM "chrome://referrercontrol/locale/global.dtd">
 
-<prefwindow
-    id="referrercontrol"
+<dialog
+    id="referrercontrol-rule-dialog"
+    buttons="accept"
+    buttonlabelaccept="&Close;"
+    title="Referrer Control &RulePreferences;"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    windowtype="ReferrerControl:Preferences"
+    windowtype="ReferrerControl:Rule Preferences"
     onload="onDocumentLoad();"
-    ondialogaccept="return doAccept();"
     width="540" height="480" >
 
     <stringbundleset>
@@ -16,51 +18,6 @@
     </stringbundleset>
     <script type="application/x-javascript"
             src="chrome://referrercontrol/content/options.js" />
-
-
-<prefpane id="main" flex="1">
-
-    <preferences>
-        <preference id="ignoreSameDomains" type="bool"
-                    name="extensions.referrercontrol.ignoreSameDomains"/>
-        <preference id="strictSameDomains" type="bool"
-                    name="extensions.referrercontrol.strictSameDomains"/>
-        <preference id="defaultPolicy" type="int"
-                    name="extensions.referrercontrol.defaultPolicy"/>
-        <preference id="customRules" type="string"
-                    name="extensions.referrercontrol.customRules"/>
-    </preferences>
-
-    <hbox align="center">
-        <checkbox label="&IgnoreSameDomains;" checked="true"
-                  preference="ignoreSameDomains"/>
-        <checkbox label="&StrictSameDomains;" checked="false"
-                  preference="strictSameDomains"/>
-    </hbox>
-
-    <hbox align="center">
-        <label value="&DefaultPolicy;" />
-        <hbox>
-            <menulist crop="none" preference="defaultPolicy">
-                <menupopup>
-                    <menuitem label="&Policy.Skip;" value="0"
-                              tooltiptext="&Policy.Skip.Tooltip;"/>
-                    <menuitem label="&Policy.Remove;" value="1"
-                              tooltiptext="&Policy.Remove.Tooltip;"/>
-                    <menuitem label="&Policy.SourceHost;" value="2"
-                              tooltiptext="&Policy.SourceHost.Tooltip;"/>
-                    <menuitem label="&Policy.SourceDomain;" value="3"
-                              tooltiptext="&Policy.SourceDomain.Tooltip;"/>
-                    <menuitem label="&Policy.TargetHost;" value="4"
-                              tooltiptext="&Policy.TargetHost.Tooltip;"/>
-                    <menuitem label="&Policy.TargetDomain;" value="5"
-                              tooltiptext="&Policy.TargetDomain.Tooltip;"/>
-                    <menuitem label="&Policy.TargetUrl;" value="6"
-                              tooltiptext="&Policy.TargetUrl.Tooltip;"/>
-                </menupopup>
-            </menulist>
-        </hbox>
-    </hbox>
 
     <popupset>
         <menupopup id="customRules-menu">
@@ -87,7 +44,6 @@
     </popupset>
 
     <vbox flex="1">
-        <label value="&CustomRules;" />
         <tree id="customRules-tree" flex="1" rows="12" seltype="single"
             ondblclick="onTreeDblclick(event);">
 
@@ -113,5 +69,4 @@
         -->
     </vbox>
 
-</prefpane>
-</prefwindow>
+</dialog>

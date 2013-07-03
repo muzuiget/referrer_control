@@ -10,7 +10,7 @@
              title="&StrictSameDomains;" />
 
     <setting type="control" title="&CustomRules;" >
-        <button id="rule-preferences" label="Rule preferences..." />
+        <button id="rule-preferences" label="&OpenRulePreferences;..." />
     </setting>
 
     <setting type="menulist" pref="extensions.referrercontrol.defaultPolicy"

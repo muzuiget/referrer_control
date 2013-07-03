@@ -177,7 +177,7 @@ let createTreeItem = function(index, rule) {
     return treeitem;
 }
 
-let savePref = function() {
+let updatePref = function() {
     let jsonRules = [];
     for (let customRule of customRules) {
         let jsonRule = {};
@@ -190,13 +190,6 @@ let savePref = function() {
 
     let jsonText = JSON.stringify(jsonRules, null, '    ');
     pref.setString('customRules', jsonText);
-};
-
-let updatePref = function() {
-    // follow platform convention
-    if (document.documentElement.instantApply) {
-        savePref();
-    }
 };
 
 let refreshUI = function() {
@@ -487,10 +480,6 @@ let onTreeDblclick = function(event) {
         return;
     }
     editRule(index);
-};
-
-let doAccept = function() {
-    savePref();
 };
 
 let onDocumentLoad = function() {

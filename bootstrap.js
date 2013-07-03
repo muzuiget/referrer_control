@@ -790,7 +790,7 @@ let ReferrerControl = function() {
 
         openRuleDialog: function(event) {
             let dialog = Utils.getMostRecentWindow(
-                                        'ReferrerControl:Preferences');
+                                        'ReferrerControl:Rule Preferences');
             if (dialog) {
                 dialog.focus();
             } else {
@@ -890,7 +890,7 @@ let ReferrerControl = function() {
             let createPrefMenuitem = function() {
                 let menuitem = document.createElementNS(NS_XUL, 'menuitem');
                 menuitem.setAttribute('class', 'pref');
-                menuitem.setAttribute('label', _('openPreferences'));
+                menuitem.setAttribute('label', _('openRulePreferences') + '...');
                 return menuitem;
             };
 

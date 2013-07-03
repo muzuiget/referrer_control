@@ -1,10 +1,11 @@
 <!ENTITY IgnoreSameDomains "忽略相同域名請求">
 <!ENTITY StrictSameDomains "把子域名看作不同域名">
-<!ENTITY DefaultPolicy "默認策略：">
 <!ENTITY CustomRules "自定義特定網站規則">
+<!ENTITY OpenRulePreferences "規則偏好設置">
+<!ENTITY DefaultPolicy "默認策略">
 
 <!ENTITY Policy.Skip "忽略">
-<!ENTITY Policy.Skip.Tooltip "不要修改，保持原​​樣">
+<!ENTITY Policy.Skip.Tooltip "不要修改，保持原樣">
 <!ENTITY Policy.Remove "移除">
 <!ENTITY Policy.Remove.Tooltip "不要發送">
 <!ENTITY Policy.SourceHost "來源主機">
@@ -42,3 +43,6 @@
 <!ENTITY Editor.Target "目標：">
 <!ENTITY Editor.Value "值：">
 <!ENTITY Editor.Comment "註釋：">
+
+<!ENTITY Close "關閉">
+<!ENTITY RulePreferences "規則偏好設置">

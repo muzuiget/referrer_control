@@ -1,7 +1,8 @@
 <!ENTITY IgnoreSameDomains "Ignore same domains request">
 <!ENTITY StrictSameDomains "Treat subdomains as different domains">
-<!ENTITY DefaultPolicy "Default policy:">
-<!ENTITY CustomRules "Custom url-specific rules:">
+<!ENTITY CustomRules "Custom url-specific rules">
+<!ENTITY OpenRulePreferences "Rule preferences">
+<!ENTITY DefaultPolicy "Default policy">
 
 <!ENTITY Policy.Skip "skip">
 <!ENTITY Policy.Skip.Tooltip "Don't change it, keep it">
@@ -42,3 +43,6 @@
 <!ENTITY Editor.Target "Target:">
 <!ENTITY Editor.Value "Value:">
 <!ENTITY Editor.Comment "Comment:">
+
+<!ENTITY RulePreferences "Rule Preferences">
+<!ENTITY Close "Close">
