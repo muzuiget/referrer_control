@@ -122,7 +122,7 @@ let policyNames = null;
 let initPolicyNames = function() {
     policyNames = [_('skip'), _('remove'),
                    _('sourceHost'), _('sourceDomain'),
-                   _('targetHost'), _('targetDomain')];
+                   _('targetHost'), _('targetDomain'), _('targetUrl')];
 };
 
 let buildRulesFromJsonRules = function(jsonRules) {
