@@ -35,6 +35,12 @@
         <em:name>Referrer Control</em:name>
         <em:description>控制 http 協議頭的來源地址</em:description>
     </Description>
+    <Description>
+        <em:locale>fr</em:locale>
+        <em:name>Referrer Control</em:name>
+        <em:description>Contrôle le référant des requêtes HTTP</em:description>
+        <em:translator>BlackJack</em:translator>
+    </Description>
     </em:localized>
 
 </Description>

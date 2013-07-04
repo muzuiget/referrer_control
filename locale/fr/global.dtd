@@ -1,0 +1,49 @@
+<!ENTITY IgnoreSameDomains "Ignorer les requêtes de mêmes domaines">
+<!ENTITY StrictSameDomains "Traiter les sous-domaines comme des domaines différents">
+<!ENTITY SiteSpecificRules "Règles spécifiques aux sites">
+<!ENTITY OpenRulePreferences "Préférences de règles">
+<!ENTITY DefaultPolicy "Politique par défaut">
+
+<!ENTITY Policy.Skip "Sauter">
+<!ENTITY Policy.Skip.Tooltip "Ne pas modifier le référant, le conserver">
+<!ENTITY Policy.Remove "Enlever">
+<!ENTITY Policy.Remove.Tooltip "Ne pas envoyer l'en-tête">
+<!ENTITY Policy.SourceHost "Hôte de la source">
+<!ENTITY Policy.SourceHost.Tooltip "Le changer en l'hôte de l'URL source">
+<!ENTITY Policy.SourceDomain "Domaine de la source">
+<!ENTITY Policy.SourceDomain.Tooltip "Le changer en domaine racine de l'URL source">
+<!ENTITY Policy.TargetHost "Hôte de la cible">
+<!ENTITY Policy.TargetHost.Tooltip "Le changer en l'hôte de l'URL cible">
+<!ENTITY Policy.TargetDomain "Domaine de la cible">
+<!ENTITY Policy.TargetDomain.Tooltip "Le changer en domaine racine de l'URL cible">
+<!ENTITY Policy.TargetUrl "URL de la cible">
+<!ENTITY Policy.TargetUrl.Tooltip "Le changer en URL de la cible">
+<!ENTITY Policy.CustomUrl "URL personnalisée">
+<!ENTITY Policy.CustomUrl.Tooltip "URL spécifique personnalisée">
+
+<!ENTITY Menu.Import "Importer">
+<!ENTITY Menu.Import.Accesskey "I">
+<!ENTITY Menu.Export "Exporter">
+<!ENTITY Menu.Export.Accesskey "x">
+
+<!ENTITY Menu.New "Nouvelle">
+<!ENTITY Menu.New.Accesskey "N">
+<!ENTITY Menu.Edit "Éditer">
+<!ENTITY Menu.Edit.Accesskey "E">
+<!ENTITY Menu.Remove "Supprimer">
+<!ENTITY Menu.Remove.Accesskey "S">
+<!ENTITY Menu.Clear "Tout effacer">
+<!ENTITY Menu.Clear.Accesskey "T">
+
+<!ENTITY Rule.Source "Source">
+<!ENTITY Rule.Target "Cible">
+<!ENTITY Rule.Value "Valeur">
+<!ENTITY Rule.Comment "Commentaire">
+
+<!ENTITY Editor.Source "Source :">
+<!ENTITY Editor.Target "Cible :">
+<!ENTITY Editor.Value "Valeur :">
+<!ENTITY Editor.Comment "Commentaire :">
+
+<!ENTITY RulePreferences "- Préférences de Règles">
+<!ENTITY Close "Fermer">
