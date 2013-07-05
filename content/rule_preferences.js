@@ -210,15 +210,16 @@ let refreshUI = function() {
         list.appendChild(treeitem);
     }
 
-    // disable "export" and "clear" menuitems when no rules in the list
-    let exportMenuitem = document.getElementById('rules-export');
-    let clearMenuitem = document.getElementById('rules-clear');
+    // disable some menuitems when no rules in the list
+    let menuitems = document.querySelectorAll('menuitem.disable_when_empty');
     if (Rules.length == 0) {
-        exportMenuitem.setAttribute('disabled', true);
-        clearMenuitem.setAttribute('disabled', true);
+        for (let menuitem of menuitems) {
+            menuitem.setAttribute('disabled', true);
+        }
     } else {
-        exportMenuitem.removeAttribute('disabled');
-        clearMenuitem.removeAttribute('disabled');
+        for (let menuitem of menuitems) {
+            menuitem.removeAttribute('disabled');
+        }
     }
 };
 
@@ -387,6 +388,56 @@ let exportRules = function(fileObject) {
 
 };
 
+let moveUpRule = function(index) {
+    if (index === 0) {
+        return;
+    }
+
+    let p = index - 1;
+    let i = index;
+    [Rules[p], Rules[i]] = [Rules[i], Rules[p]];
+
+    updatePref();
+    refreshUI();
+};
+
+let moveDownRule = function(index) {
+    if (index === Rules.length - 1) {
+        return;
+    }
+
+    let n = index + 1;
+    let i = index;
+    [Rules[n], Rules[i]] = [Rules[i], Rules[n]];
+
+    updatePref();
+    refreshUI();
+};
+
+let moveToTopRule = function(index) {
+    if (index === 0) {
+        return;
+    }
+
+    let rule = Rules.splice(index, 1)[0];
+    Rules.unshift(rule);
+
+    updatePref();
+    refreshUI();
+};
+
+let moveToBottomRule = function(index) {
+    if (index === Rules.length - 1) {
+        return;
+    }
+
+    let rule = Rules.splice(index, 1)[0];
+    Rules.push(rule);
+
+    updatePref();
+    refreshUI();
+};
+
 let newRule = function() {
     let rule = {
         source: '',
@@ -433,6 +484,8 @@ let clearRules = function() {
 
 /* content-menu */
 
+// import/export
+
 let DEFAULT_FILENAME = 'referrer_control.json';
 
 let onImportCommand = function() {
@@ -459,6 +512,42 @@ let onExportCommand = function() {
     });
 };
 
+// movement
+
+let onMoveUpCommand = function() {
+    let treeview = document.getElementById('rules-tree').view;
+    let index = treeview.selection.currentIndex;
+    if (index !== -1) {
+        moveUpRule(index);
+    }
+};
+
+let onMoveDownCommand = function() {
+    let treeview = document.getElementById('rules-tree').view;
+    let index = treeview.selection.currentIndex;
+    if (index !== -1) {
+        moveDownRule(index);
+    }
+};
+
+let onMoveToTopCommand = function() {
+    let treeview = document.getElementById('rules-tree').view;
+    let index = treeview.selection.currentIndex;
+    if (index !== -1) {
+        moveToTopRule(index);
+    }
+};
+
+let onMoveToBottomCommand = function() {
+    let treeview = document.getElementById('rules-tree').view;
+    let index = treeview.selection.currentIndex;
+    if (index !== -1) {
+        moveToBottomRule(index);
+    }
+};
+
+// CRUD
+
 let onNewCommand = function() {
     newRule();
 };
@@ -466,7 +555,9 @@ let onNewCommand = function() {
 let onEditCommand = function() {
     let treeview = document.getElementById('rules-tree').view;
     let index = treeview.selection.currentIndex;
-    editRule(index);
+    if (index !== -1) {
+        editRule(index);
+    }
 };
 
 let onRemoveCommand = function() {

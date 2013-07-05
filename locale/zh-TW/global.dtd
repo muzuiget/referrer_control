@@ -24,6 +24,16 @@
 <!ENTITY Menu.Import "匯入(I)">
 <!ENTITY Menu.Import.Accesskey "I">
 <!ENTITY Menu.Export "匯出(X)">
+
+<!ENTITY Menu.MoveUp "上移(U)">
+<!ENTITY Menu.MoveUp.Accesskey "U">
+<!ENTITY Menu.MoveDown "下移(D)">
+<!ENTITY Menu.MoveDown.Accesskey "D">
+<!ENTITY Menu.MoveToTop "移到頂部(T)">
+<!ENTITY Menu.MoveToTop.Accesskey "T">
+<!ENTITY Menu.MoveToBottom "移到底部(B)">
+<!ENTITY Menu.MoveToBottom.Accesskey "B">
+
 <!ENTITY Menu.Export.Accesskey "X">
 <!ENTITY Menu.New "新建(N)">
 <!ENTITY Menu.New.Accesskey "N">

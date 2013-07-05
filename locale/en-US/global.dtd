@@ -25,6 +25,16 @@
 <!ENTITY Menu.Import.Accesskey "I">
 <!ENTITY Menu.Export "Export">
 <!ENTITY Menu.Export.Accesskey "X">
+
+<!ENTITY Menu.MoveUp "Move Up">
+<!ENTITY Menu.MoveUp.Accesskey "U">
+<!ENTITY Menu.MoveDown "Move Down">
+<!ENTITY Menu.MoveDown.Accesskey "D">
+<!ENTITY Menu.MoveToTop "Move to Top">
+<!ENTITY Menu.MoveToTop.Accesskey "T">
+<!ENTITY Menu.MoveToBottom "Move to Bottom">
+<!ENTITY Menu.MoveToBottom.Accesskey "B">
+
 <!ENTITY Menu.New "New">
 <!ENTITY Menu.New.Accesskey "N">
 <!ENTITY Menu.Edit "Edit">

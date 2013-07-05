@@ -27,8 +27,26 @@
                       accesskey="&Menu.Import.Accesskey;"
                       oncommand="onImportCommand();"/>
             <menuitem id="rules-export" label="&Menu.Export;"
+                      class="disable_when_empty"
                       accesskey="&Menu.Export.Accesskey;"
                       oncommand="onExportCommand();"/>
+            <menuseparator/>
+            <menuitem id="rules-move_up" label="&Menu.MoveUp;"
+                      class="disable_when_empty"
+                      accesskey="&Menu.MoveUp.Accesskey;"
+                      oncommand="onMoveUpCommand();"/>
+            <menuitem id="rules-move_down" label="&Menu.MoveDown;"
+                      class="disable_when_empty"
+                      accesskey="&Menu.MoveDown.Accesskey;"
+                      oncommand="onMoveDownCommand();"/>
+            <menuitem id="rules-move_to_top" label="&Menu.MoveToTop;"
+                      class="disable_when_empty"
+                      accesskey="&Menu.MoveToTop.Accesskey;"
+                      oncommand="onMoveToTopCommand();"/>
+            <menuitem id="rules-move_to_bottom" label="&Menu.MoveToBottom;"
+                      class="disable_when_empty"
+                      accesskey="&Menu.MoveToBottom.Accesskey;"
+                      oncommand="onMoveToBottomCommand();"/>
             <menuseparator/>
             <menuitem id="rules-new" label="&Menu.New;"
                       accesskey="&Menu.New.Accesskey;"
@@ -40,6 +58,7 @@
                       accesskey="&Menu.Remove.Accesskey;"
                       oncommand="onRemoveCommand();"/>
             <menuitem id="rules-clear" label="&Menu.Clear;"
+                      class="disable_when_empty"
                       accesskey="&Menu.Clear.Accesskey;"
                       oncommand="onClearCommand();"/>
         </menupopup>
