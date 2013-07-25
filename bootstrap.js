@@ -600,7 +600,7 @@ let ReferrerControl = function() {
 
     let config = {
         firstRun: true,
-        activated: false,
+        activated: true,
         ignoreSameDomains: true,
         strictSameDomains: false,
         defaultPolicy: 1, // the "remove" policy
