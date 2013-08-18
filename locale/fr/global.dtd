@@ -26,13 +26,13 @@
 <!ENTITY Menu.Export "Exporter">
 <!ENTITY Menu.Export.Accesskey "x">
 
-<!ENTITY Menu.MoveUp "Déplacer vers le Haut">
+<!ENTITY Menu.MoveUp "Déplacer vers le haut">
 <!ENTITY Menu.MoveUp.Accesskey "H">
-<!ENTITY Menu.MoveDown "Déplacer vers le Bas">
+<!ENTITY Menu.MoveDown "Déplacer vers le bas">
 <!ENTITY Menu.MoveDown.Accesskey "B">
-<!ENTITY Menu.MoveToTop "Déplacer tout en Haut">
+<!ENTITY Menu.MoveToTop "Déplacer tout en haut">
 <!ENTITY Menu.MoveToTop.Accesskey "t">
-<!ENTITY Menu.MoveToBottom "Déplacer tout en Bas">
+<!ENTITY Menu.MoveToBottom "Déplacer tout en bas">
 <!ENTITY Menu.MoveToBottom.Accesskey "o">
 
 <!ENTITY Menu.New "Nouvelle">
@@ -54,5 +54,5 @@
 <!ENTITY Editor.Value "Valeur :">
 <!ENTITY Editor.Comment "Commentaire :">
 
-<!ENTITY RulePreferences "- Préférences de Règles">
+<!ENTITY RulePreferences "- Préférences de règles">
 <!ENTITY Close "Fermer">
