@@ -28,12 +28,12 @@
     <Description>
         <em:locale>zh-CN</em:locale>
         <em:name>Referrer Control</em:name>
-        <em:description>控制 http 协议头的来源地址</em:description>
+        <em:description>控制 HTTP 协议头的来源地址</em:description>
     </Description>
     <Description>
         <em:locale>zh-TW</em:locale>
         <em:name>Referrer Control</em:name>
-        <em:description>控制 http 協議頭的來源地址</em:description>
+        <em:description>控制 HTTP 協議頭的來源地址</em:description>
     </Description>
     <Description>
         <em:locale>fr</em:locale>
