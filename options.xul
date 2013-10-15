@@ -9,6 +9,9 @@
     <setting type="bool" pref="extensions.referrercontrol.strictSameDomains"
              title="&StrictSameDomains;" />
 
+    <setting type="bool" pref="extensions.referrercontrol.handleBlankSource"
+             title="&HandleBlankSource;" />
+
     <setting type="control" title="&SiteSpecificRules;" >
         <button id="rule-preferences" label="&OpenRulePreferences;..." />
     </setting>

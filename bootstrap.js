@@ -512,6 +512,13 @@ let ruleCompiler = function(text) {
 let Referrer = (function() {
 
     let toUrl = function(sourceURI, targetURI, policy) {
+        // When sourceURI is null, that is original Referer is blank.
+        // So policy "source host" and "source domain" is meaningless,
+        // just treat as "remove".
+        if (!sourceURI && (policy === 2 || policy === 3)) {
+            return '';
+        }
+
         let value;
         switch (policy) {
             case 0: // skip
@@ -535,11 +542,13 @@ let Referrer = (function() {
             default:
                 return null;
         }
-        return sourceURI.scheme + '://' + value + '/';
+
+        let scheme = sourceURI && sourceURI.scheme || targetURI.scheme;
+        return scheme + '://' + value + '/';
     };
 
     let debugResult = function(sourceURI, targetURI, result) {
-        let lines = ['source: ' + sourceURI.spec,
+        let lines = ['source: ' + (sourceURI && sourceURI.spec || ''),
                      'target: ' + targetURI.spec,
                      'result: ' + result]
         log(lines.join('\n'));
@@ -548,7 +557,16 @@ let Referrer = (function() {
     let getFor = function(sourceURI, targetURI, rules, policy) {
         for (let rule of rules) {
             let {source, target, isUrl, url, code} = rule;
-            if (source.test(sourceURI.spec) && target.test(targetURI.spec)) {
+
+            let isMatch;
+            if (sourceURI) {
+                isMatch = source.test(sourceURI.spec) &&
+                                target.test(targetURI.spec);
+            } else {
+                isMatch = target.test(targetURI.spec);
+            }
+
+            if (isMatch) {
                 if (isUrl) {
                     return url;
                 } else {
@@ -556,6 +574,7 @@ let Referrer = (function() {
                 }
             }
         }
+        // Does not match any custom rule, use the default policy
         return toUrl(sourceURI, targetURI, policy);
     };
 
@@ -603,6 +622,7 @@ let ReferrerControl = function() {
         activated: true,
         ignoreSameDomains: true,
         strictSameDomains: false,
+        handleBlankSource: false,
         defaultPolicy: 1, // the "remove" policy
         rules: [],
     };
@@ -679,6 +699,7 @@ let ReferrerControl = function() {
             initBool('activated');
             initBool('ignoreSameDomains');
             initBool('strictSameDomains');
+            initBool('handleBlankSource');
             initInt('defaultPolicy');
             initComplex('rules', PREF_NAME_RULES, ruleCompiler, '[]');
         },
@@ -688,6 +709,7 @@ let ReferrerControl = function() {
             loadBool('activated');
             loadBool('ignoreSameDomains');
             loadBool('strictSameDomains');
+            loadBool('handleBlankSource');
             loadInt('defaultPolicy');
             loadComplex('rules', PREF_NAME_RULES, ruleCompiler);
         },
@@ -736,19 +758,30 @@ let ReferrerControl = function() {
         },
 
         override: function(channel) {
-            if (!channel.referrer) {
+            let {
+                ignoreSameDomains,
+                strictSameDomains,
+                handleBlankSource,
+                defaultPolicy,
+                rules
+            } = config;
+
+            if (!handleBlankSource && !channel.referrer) {
                 return;
             }
 
-            let {ignoreSameDomains, strictSameDomains,
-                defaultPolicy, rules} = config;
-            let {referrer: sourceURI, URI: targetURI} = channel;
+            let targetURI = channel.URI;
+            let sourceURI = null;
 
-            // ignore same domains
-            if (ignoreSameDomains &&
-                    Utils.isSameDomains(sourceURI, targetURI,
-                                        strictSameDomains)) {
-                return;
+            if (channel.referrer) {
+                sourceURI = channel.referrer;
+
+                // ignore same domains
+                if (ignoreSameDomains &&
+                        Utils.isSameDomains(sourceURI, targetURI,
+                                            strictSameDomains)) {
+                    return;
+                }
             }
 
             // now find override referrer string
