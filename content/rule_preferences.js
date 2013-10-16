@@ -197,7 +197,7 @@ let updatePref = function() {
         jsonRules.push(jsonRule);
     }
 
-    let jsonText = JSON.stringify(jsonRules, null, '    ');
+    let jsonText = JSON.stringify(jsonRules, null);
     pref.setString(PREF_NAME_RULES, jsonText);
 };
 
