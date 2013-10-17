@@ -488,26 +488,44 @@ let clearRules = function() {
 
 let DEFAULT_FILENAME = 'referrer_control.json';
 
+let lastSelectedFile = null;
+
+let importDialog = null;
 let onImportCommand = function() {
-    let dialog = Utils.createOpenFilePicker(_('importTitle'), DEFAULT_FILENAME);
+    if (!importDialog) {
+        importDialog = Utils.createOpenFilePicker(_('importTitle'), DEFAULT_FILENAME);
 
-    // *.txt is for RefControl rule file
-    dialog.appendFilter(_('ruleFiles'), '*.json; *.txt');
+        // *.txt is for RefControl rule file
+        importDialog.appendFilter(_('ruleFiles'), '*.json; *.txt');
+    }
 
-    dialog.open(function(result) {
+    if (lastSelectedFile) {
+        importDialog.displayDirectory = lastSelectedFile.parent;
+    }
+
+    importDialog.open(function(result) {
+        lastSelectedFile = importDialog.file;
         if (result != Ci.nsIFilePicker.returnCancel) {
-            importRules(dialog.file);
+            importRules(importDialog.file);
         }
     });
 };
 
+let exportDialog = null;
 let onExportCommand = function() {
-    let dialog = Utils.createSaveFilePicker(_('exportTitle'), DEFAULT_FILENAME);
-    dialog.appendFilter(_('ruleFiles'), '*.json');
+    if (!exportDialog) {
+        exportDialog = Utils.createSaveFilePicker(_('exportTitle'), DEFAULT_FILENAME);
+        exportDialog.appendFilter(_('ruleFiles'), '*.json');
+    }
 
-    dialog.open(function(result) {
+    if (lastSelectedFile) {
+        exportDialog.displayDirectory = lastSelectedFile.parent;
+    }
+
+    exportDialog.open(function(result) {
+        lastSelectedFile = exportDialog.file;
         if (result != Ci.nsIFilePicker.returnCancel) {
-            exportRules(dialog.file);
+            exportRules(exportDialog.file);
         }
     });
 };
