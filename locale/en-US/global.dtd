@@ -6,9 +6,9 @@
 <!ENTITY DefaultPolicy "Default policy">
 
 <!ENTITY Policy.Skip "skip">
-<!ENTITY Policy.Skip.Tooltip "Don't change it, keep it">
+<!ENTITY Policy.Skip.Tooltip "Don't change it, keep it original">
 <!ENTITY Policy.Remove "remove">
-<!ENTITY Policy.Remove.Tooltip "Don't send the header">
+<!ENTITY Policy.Remove.Tooltip "Don't send it">
 <!ENTITY Policy.SourceHost "source host">
 <!ENTITY Policy.SourceHost.Tooltip "Change it to source url's host">
 <!ENTITY Policy.SourceDomain "source domain">

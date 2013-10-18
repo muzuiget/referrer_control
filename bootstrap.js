@@ -604,13 +604,13 @@ let ReferrerControl = function() {
     const PREF_NAME_RULES = 'customRules';
 
     const POLICIES = [
-        [0, _('skip')],
-        [1, _('remove')],
-        [2, _('sourceHost')],
-        [3, _('sourceDomain')],
-        [4, _('targetHost')],
-        [5, _('targetDomain')],
-        [6, _('targetUrl')]
+        [0, 'skip'],
+        [1, 'remove'],
+        [2, 'sourceHost'],
+        [3, 'sourceDomain'],
+        [4, 'targetHost'],
+        [5, 'targetDomain'],
+        [6, 'targetUrl']
     ];
     const ACTIVATED_TOOLTIPTEXT = EXTENSION_NAME + '\n' +
                                   _('activatedTooltip');
@@ -937,10 +937,11 @@ let ReferrerControl = function() {
                 for (let [code, name] of POLICIES) {
                     let attrs = {
                         'class': 'policy',
-                        label: name,
+                        label: _(name),
                         value: code,
                         name: 'referrercontrol-policy',
                         type: 'radio',
+                        tooltiptext: _(name + 'Tooltip'),
                         checked: code === defaultPolicy,
                     };
                     let menuitem = document.createElementNS(NS_XUL, 'menuitem');
