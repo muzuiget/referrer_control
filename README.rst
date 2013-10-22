@@ -5,7 +5,7 @@ Referrer Control
 Introduction
 ============
 
-Referrer Control is Firefox extension to control http request referrer.
+Referrer Control is Firefox extension to control HTTP request referrer.
 
 Install
 =======
@@ -17,21 +17,28 @@ Host at AMO, fully reviewed by AMO editors.
 
 https://addons.mozilla.org/firefox/addon/referrer-control/
 
+Beta
+----
+
+Also host at AMO, development channel
+
+https://addons.mozilla.org/firefox/addon/referrer-control/versions/
+
 Nightly
 -------
 
-Download this repository as a zip file
+This repository directory structure is the content of Firefox extension xpi file.
 
-https://github.com/muzuiget/referrer_control/archive/master.zip
+So just checkout/download the code, archive all the files(not the toplevel folder) to zip file.
 
-Then rename '.zip' to '.xpi', install it.
+Then rename the filename suffix ".zip" to ".xpi", install it.
 
 Localization
 ============
 
 The translation files are host at Transifex.
 
-If you want to help translating Referrer Control into your native language, check the page
+If you want to help translating this project into your native language, check the page
 
 https://www.transifex.com/projects/p/referrer_control/
 
@@ -41,5 +48,4 @@ License
 MPLv2_
 
 .. _MPLv2: http://www.mozilla.org/MPL/2.0/
-
 
