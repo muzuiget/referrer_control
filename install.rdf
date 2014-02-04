@@ -41,6 +41,12 @@
         <em:description>Contrôle le référant des requêtes HTTP</em:description>
         <em:translator>BlackJack</em:translator>
     </Description>
+    <Description>
+        <em:locale>ro</em:locale>
+        <em:name>Referrer Control</em:name>
+        <em:description>Controlează referentul cererii HTTP</em:description>
+        <em:translator>roentgen</em:translator>
+    </Description>
     </em:localized>
 
 </Description>

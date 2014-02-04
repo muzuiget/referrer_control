@@ -1,0 +1,59 @@
+<!ENTITY IgnoreBlankSource "Ignoră cererea de sursă vidă">
+<!ENTITY IgnoreSameDomains "Ignoră cererea pentru aceleași domenii">
+<!ENTITY StrictSameDomains "Tratează subdomeniile ca domenii diferite">
+<!ENTITY SiteSpecificRules "Reguli specifice saiturilor">
+<!ENTITY OpenRulePreferences "Preferințe reguli">
+<!ENTITY DefaultPolicy "Politica implicită">
+
+<!ENTITY Policy.Skip "sări">
+<!ENTITY Policy.Skip.Tooltip "Nu-l schimba, menține-l pe cel original">
+<!ENTITY Policy.Remove "înlătură">
+<!ENTITY Policy.Remove.Tooltip "Nu-l trimite">
+<!ENTITY Policy.SourceHost "gazda sursă">
+<!ENTITY Policy.SourceHost.Tooltip "Schimbă-l în gazda url-ului sursă">
+<!ENTITY Policy.SourceDomain "domeniul sursă">
+<!ENTITY Policy.SourceDomain.Tooltip "Schimbă-l în domeniul rădăcină al url-ului sursă">
+<!ENTITY Policy.TargetHost "gazda destinație">
+<!ENTITY Policy.TargetHost.Tooltip "Schimbă-l în gazda url-ului destinație">
+<!ENTITY Policy.TargetDomain "domeniul destinație">
+<!ENTITY Policy.TargetDomain.Tooltip "Schimbă-l în domeniul rădăcină al url-ului destinație">
+<!ENTITY Policy.TargetUrl "url destinație">
+<!ENTITY Policy.TargetUrl.Tooltip "Schimbă-l în url-ul destinație">
+<!ENTITY Policy.CustomUrl "url personalizat">
+<!ENTITY Policy.CustomUrl.Tooltip "Url personalizat specific">
+
+<!ENTITY Menu.Import "Importă">
+<!ENTITY Menu.Import.Accesskey "I">
+<!ENTITY Menu.Export "Exportă">
+<!ENTITY Menu.Export.Accesskey "X">
+
+<!ENTITY Menu.MoveUp "Mută mai sus">
+<!ENTITY Menu.MoveUp.Accesskey "U">
+<!ENTITY Menu.MoveDown "Mută mai jos">
+<!ENTITY Menu.MoveDown.Accesskey "D">
+<!ENTITY Menu.MoveToTop "Mută la început">
+<!ENTITY Menu.MoveToTop.Accesskey "T">
+<!ENTITY Menu.MoveToBottom "Mută la sfârșit">
+<!ENTITY Menu.MoveToBottom.Accesskey "B">
+
+<!ENTITY Menu.New "Nou">
+<!ENTITY Menu.New.Accesskey "N">
+<!ENTITY Menu.Edit "Editează">
+<!ENTITY Menu.Edit.Accesskey "E">
+<!ENTITY Menu.Remove "Șterge">
+<!ENTITY Menu.Remove.Accesskey "R">
+<!ENTITY Menu.Clear "Șterge tot">
+<!ENTITY Menu.Clear.Accesskey "C">
+
+<!ENTITY Rule.Source "sursă">
+<!ENTITY Rule.Target "destinație">
+<!ENTITY Rule.Value "valoare">
+<!ENTITY Rule.Comment "comentariu">
+
+<!ENTITY Editor.Source "Sursă:">
+<!ENTITY Editor.Target "Destinație:">
+<!ENTITY Editor.Value "Valoare:">
+<!ENTITY Editor.Comment "Comentariu:">
+
+<!ENTITY RulePreferences "Preferințe reguli">
+<!ENTITY Close "Închide">
