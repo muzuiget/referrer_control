@@ -1,6 +1,6 @@
+<!ENTITY IgnoreBlankSource "忽略來源為空的請求">
 <!ENTITY IgnoreSameDomains "忽略相同域名請求">
 <!ENTITY StrictSameDomains "把子域名看作不同域名">
-<!ENTITY HandleBlankSource "處理來源為空的請求">
 <!ENTITY SiteSpecificRules "特定網站規則">
 <!ENTITY OpenRulePreferences "規則偏好設置">
 <!ENTITY DefaultPolicy "默認策略">

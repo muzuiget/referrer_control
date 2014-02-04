@@ -3,14 +3,14 @@
 
 <vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
+    <setting type="bool" pref="extensions.referrercontrol.ignoreBlankSource"
+             title="&IgnoreBlankSource;" />
+
     <setting type="bool" pref="extensions.referrercontrol.ignoreSameDomains"
              title="&IgnoreSameDomains;" />
 
     <setting type="bool" pref="extensions.referrercontrol.strictSameDomains"
              title="&StrictSameDomains;" />
-
-    <setting type="bool" pref="extensions.referrercontrol.handleBlankSource"
-             title="&HandleBlankSource;" />
 
     <setting type="control" title="&SiteSpecificRules;" >
         <button id="rule-preferences" label="&OpenRulePreferences;..." />

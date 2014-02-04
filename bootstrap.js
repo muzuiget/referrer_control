@@ -620,9 +620,9 @@ let ReferrerControl = function() {
     let config = {
         firstRun: true,
         activated: true,
+        ignoreBlankSource: true,
         ignoreSameDomains: true,
         strictSameDomains: false,
-        handleBlankSource: false,
         defaultPolicy: 1, // the "remove" policy
         rules: [],
     };
@@ -697,9 +697,9 @@ let ReferrerControl = function() {
             let {initBool, initInt, initComplex} = this;
             initBool('firstRun');
             initBool('activated');
+            initBool('ignoreBlankSource');
             initBool('ignoreSameDomains');
             initBool('strictSameDomains');
-            initBool('handleBlankSource');
             initInt('defaultPolicy');
             initComplex('rules', PREF_NAME_RULES, ruleCompiler, '[]');
         },
@@ -707,9 +707,9 @@ let ReferrerControl = function() {
             let {loadBool, loadInt, loadComplex} = this;
             loadBool('firstRun');
             loadBool('activated');
+            loadBool('ignoreBlankSource');
             loadBool('ignoreSameDomains');
             loadBool('strictSameDomains');
-            loadBool('handleBlankSource');
             loadInt('defaultPolicy');
             loadComplex('rules', PREF_NAME_RULES, ruleCompiler);
         },
@@ -759,14 +759,14 @@ let ReferrerControl = function() {
 
         override: function(channel) {
             let {
+                ignoreBlankSource,
                 ignoreSameDomains,
                 strictSameDomains,
-                handleBlankSource,
                 defaultPolicy,
                 rules
             } = config;
 
-            if (!handleBlankSource && !channel.referrer) {
+            if (ignoreBlankSource && !channel.referrer) {
                 return;
             }
 

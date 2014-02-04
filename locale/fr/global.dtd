@@ -1,6 +1,6 @@
+<!ENTITY IgnoreBlankSource "Ignorer les requêtes avec une source vide">
 <!ENTITY IgnoreSameDomains "Ignorer les requêtes de mêmes domaines">
 <!ENTITY StrictSameDomains "Traiter les sous-domaines comme des domaines différents">
-<!ENTITY HandleBlankSource "Gérer les requêtes avec une source vide">
 <!ENTITY SiteSpecificRules "Règles spécifiques aux sites">
 <!ENTITY OpenRulePreferences "Préférences de règles">
 <!ENTITY DefaultPolicy "Politique par défaut">
