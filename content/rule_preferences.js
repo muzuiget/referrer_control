@@ -41,8 +41,13 @@ const Utils = (function() {
                 callback.fail(statusCode);
                 return;
             }
-            let text = NetUtil.readInputStreamToString(
+
+            let asciiText = NetUtil.readInputStreamToString(
                                     inputStream, inputStream.available());
+            let converter = _createUnicodeConverter();
+            converter.charset = 'UTF-8';
+            let text = converter.ConvertToUnicode(asciiText);
+
             callback.success(text);
         });
     };
