@@ -42,12 +42,9 @@ const Utils = (function() {
                 return;
             }
 
-            let asciiText = NetUtil.readInputStreamToString(
-                                    inputStream, inputStream.available());
-            let converter = _createUnicodeConverter();
-            converter.charset = 'UTF-8';
-            let text = converter.ConvertToUnicode(asciiText);
-
+            let text = NetUtil.readInputStreamToString(
+                            inputStream, inputStream.available(),
+                            {charset: 'UTF-8', replacement: '\ufffd'});
             callback.success(text);
         });
     };
