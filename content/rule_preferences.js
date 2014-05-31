@@ -280,13 +280,14 @@ let importRules = function(fileObject) {
             // full match, so convert site string
             //     google.com
             // to regular expression
-            //     'https?://(google\.com|.+\.google\.com)/.*'
-            // also need to add "/" at the start and end, let the rule parser
-            // treat it as regular expression.
-            let targetTpl = '/https?://(${domain}|.+\.${domain})/.*/';
-            let domain = siteString.replace('.', '\\.');
-            jsonRule.target = targetTpl.replace('${domain}', domain)
-                                       .replace('${domain}', domain);
+            //     '^https?://(?:[^/]+\\.)*google\\.com/.*$'
+            // more detail see
+            //     https://github.com/muzuiget/referrer_control/issues/23
+            // also need to wrap with "/", let the rule parser treat it as
+            // regular expression.
+            let targetTpl = '/^https?://(?:[^/]+\\.)*${domain}/.*$/';
+            let domain = siteString.replace(/\./g, '\\.');
+            jsonRule.target = targetTpl.replace('${domain}', domain);
 
             // convert policy
             // Referrer Control handle third-party request globally,
