@@ -26,7 +26,7 @@ const Utils = (function() {
         let firstChar = pattern.charAt(0);
         let lastChat = pattern.charAt(pattern.length - 1);
         if (firstChar + lastChat === '//') {
-            return new RegExp(pattern.substr(1, -1));
+            return new RegExp(pattern.slice(1, -1));
         } else {
             pattern = '^' + pattern.replace(/\*/g, '.*') + '$';
             return new RegExp(pattern);
