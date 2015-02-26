@@ -4,7 +4,7 @@
 <Description about="urn:mozilla:install-manifest">
 
     <em:id>referrercontrol@qixinglu.com</em:id>
-    <em:version>0.4.5</em:version>
+    <em:version>0.4.6</em:version>
     <em:type>2</em:type>
     <em:bootstrap>true</em:bootstrap>
     <em:unpack>false</em:unpack>
@@ -18,8 +18,8 @@
     <em:targetApplication>
     <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-        <em:minVersion>17.0</em:minVersion>
-        <em:maxVersion>32.*</em:maxVersion>
+        <em:minVersion>35.0</em:minVersion>
+        <em:maxVersion>36.*</em:maxVersion>
     </Description>
     </em:targetApplication>
 
