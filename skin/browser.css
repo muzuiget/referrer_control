@@ -17,13 +17,7 @@ toolbar[iconsize="small"] #referrercontrol-button {
 }
 
 toolbar #referrercontrol-button[disabled="yes"] {
-    filter: url("chrome://mozapps/skin/extensions/extensions.svg#greyscale");
-}
-
-/* in customization panel */
-
-#referrercontrol-button:not([type="menu-button"]) {
-    list-style-image: url("chrome://referrercontrol/skin/icon24.png") !important;
+    filter: grayscale(100%);
 }
 
 /* in browser window toolbar palette (Australis theme since Firefox 29) */
@@ -34,6 +28,6 @@ toolbarpaletteitem[place="palette"] > #referrercontrol-button {
 }
 
 #referrercontrol-button[cui-areatype="menu-panel"][disabled="yes"] {
-    filter: url("chrome://mozapps/skin/extensions/extensions.svg#greyscale");
+    filter: grayscale(100%);
 }
 
