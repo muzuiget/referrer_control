@@ -563,7 +563,8 @@ let Referrer = (function() {
                 isMatch = source.test(sourceURI.spec) &&
                                 target.test(targetURI.spec);
             } else {
-                isMatch = target.test(targetURI.spec);
+                if (target != Utils.fakeTrueTest) // Ignore source-only rules
+                    isMatch = target.test(targetURI.spec);
             }
 
             if (isMatch) {
