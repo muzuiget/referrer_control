@@ -548,10 +548,11 @@ let Referrer = (function() {
     };
 
     let debugResult = function(sourceURI, targetURI, result) {
-        let lines = ['source: ' + (sourceURI && sourceURI.spec || ''),
-                     'target: ' + targetURI.spec,
-                     'result: ' + result]
-        log(lines.join('\n'));
+        console.group();
+        console.log('source', sourceURI && sourceURI.spec || ''),
+        console.log('target', targetURI.spec),
+        console.log('result', result),
+        console.groupEnd();
     };
 
     let getFor = function(sourceURI, targetURI, rules, policy) {
@@ -585,8 +586,8 @@ let Referrer = (function() {
     };
 
     let exports = {
-        getFor: getFor,
-        //getFor: debugGetFor,
+        //getFor: getFor,
+        getFor: debugGetFor,
     }
     return exports;
 })();
