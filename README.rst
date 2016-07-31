@@ -7,6 +7,10 @@ Introduction
 
 Referrer Control is Firefox extension to control HTTP request referrer.
 
+Details are available in the Wiki:
+
+https://github.com/muzuiget/referrer_control/wiki
+
 Install
 =======
 
@@ -29,16 +33,16 @@ Nightly
 
 This repository directory structure is the content of Firefox extension xpi file.
 
-So just checkout/download the code, archive all the files(not the toplevel folder) to zip file.
+So just checkout/download the code, archive all the files (not the toplevel folder) to a zip file.
 
-Then rename the filename suffix ".zip" to ".xpi", install it.
+Then rename the filename extension ".zip" to ".xpi", and install it.
 
 Localization
 ============
 
-The translation files are host at Transifex.
+The translation files are hosted on Transifex.
 
-If you want to help translating this project into your native language, check the page
+If you want to help translate this project into your native language, please see
 
 https://www.transifex.com/projects/p/referrer_control/
 
