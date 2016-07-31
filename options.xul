@@ -25,14 +25,14 @@
                           tooltiptext="&Policy.Skip.Tooltip;"/>
                 <menuitem label="&Policy.Remove;" value="1"
                           tooltiptext="&Policy.Remove.Tooltip;"/>
-                <menuitem label="&Policy.SourceHost;" value="2"
-                          tooltiptext="&Policy.SourceHost.Tooltip;"/>
-                <menuitem label="&Policy.SourceDomain;" value="3"
+                <menuitem label="&Policy.SourceDomain;" value="2"
                           tooltiptext="&Policy.SourceDomain.Tooltip;"/>
-                <menuitem label="&Policy.TargetHost;" value="4"
-                          tooltiptext="&Policy.TargetHost.Tooltip;"/>
-                <menuitem label="&Policy.TargetDomain;" value="5"
+                <menuitem label="&Policy.SourceHost;" value="3"
+                          tooltiptext="&Policy.SourceHost.Tooltip;"/>
+                <menuitem label="&Policy.TargetDomain;" value="4"
                           tooltiptext="&Policy.TargetDomain.Tooltip;"/>
+                <menuitem label="&Policy.TargetHost;" value="5"
+                          tooltiptext="&Policy.TargetHost.Tooltip;"/>
                 <menuitem label="&Policy.TargetUrl;" value="6"
                           tooltiptext="&Policy.TargetUrl.Tooltip;"/>
             </menupopup>
