@@ -1,59 +1,59 @@
 "use strict"
 
-const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-const NS_XUL = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
+var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+var NS_XUL = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
 
 /* library */
 
-const Utils = (function() {
+var Utils = (function() {
 
     Cu.import('resource://gre/modules/NetUtil.jsm');
     Cu.import('resource://gre/modules/FileUtils.jsm');
 
-    const filePickerClass = Cc['@mozilla.org/filepicker;1'];
-    const unicodeConverterClass = Cc['@mozilla.org/intl/scriptableunicodeconverter'];
-    const dirService = Cc['@mozilla.org/file/directory_service;1']
+    var filePickerClass = Cc['@mozilla.org/filepicker;1'];
+    var unicodeConverterClass = Cc['@mozilla.org/intl/scriptableunicodeconverter'];
+    var dirService = Cc['@mozilla.org/file/directory_service;1']
                          .getService(Ci.nsIProperties);
-    const windowMediator = Cc['@mozilla.org/appshell/window-mediator;1']
+    var windowMediator = Cc['@mozilla.org/appshell/window-mediator;1']
                               .getService(Ci.nsIWindowMediator);
 
-    let _createFilePicker = function(mode, title, defaultName) {
-        let dialog = filePickerClass.createInstance(Ci.nsIFilePicker);
+    var _createFilePicker = function(mode, title, defaultName) {
+        var dialog = filePickerClass.createInstance(Ci.nsIFilePicker);
         dialog.init(window, title, mode);
         dialog.defaultString = defaultName;
         dialog.displayDirectory = dirService.get('Home', Ci.nsIFile);
         return dialog;
     };
 
-    let createOpenFilePicker = _createFilePicker.bind(
+    var createOpenFilePicker = _createFilePicker.bind(
                                         this, Ci.nsIFilePicker.modeOpen);
 
-    let createSaveFilePicker = _createFilePicker.bind(
+    var createSaveFilePicker = _createFilePicker.bind(
                                         this, Ci.nsIFilePicker.modeSave);
 
-    let _createUnicodeConverter = function() {
+    var _createUnicodeConverter = function() {
         return unicodeConverterClass.createInstance(Ci.nsIScriptableUnicodeConverter);
     };
 
-    let readFileToString = function(fileObject, callback) {
+    var readFileToString = function(fileObject, callback) {
         NetUtil.asyncFetch(fileObject, function(inputStream, statusCode) {
             if (!Components.isSuccessCode(statusCode)) {
                 callback.fail(statusCode);
                 return;
             }
 
-            let text = NetUtil.readInputStreamToString(
+            var text = NetUtil.readInputStreamToString(
                             inputStream, inputStream.available(),
                             {charset: 'UTF-8', replacement: '\ufffd'});
             callback.success(text);
         });
     };
 
-    let writeStringToFile = function(fileObject, text, callback) {
-        let outputStream = FileUtils.openSafeFileOutputStream(fileObject);
-        let converter = _createUnicodeConverter();
+    var writeStringToFile = function(fileObject, text, callback) {
+        var outputStream = FileUtils.openSafeFileOutputStream(fileObject);
+        var converter = _createUnicodeConverter();
         converter.charset = 'UTF-8';
-        let inputStream = converter.convertToInputStream(text);
+        var inputStream = converter.convertToInputStream(text);
 
         NetUtil.asyncCopy(inputStream, outputStream, function(statusCode) {
             if (Components.isSuccessCode(statusCode)) {
@@ -64,10 +64,10 @@ const Utils = (function() {
         });
     };
 
-    let getMostRecentWindow = windowMediator.getMostRecentWindow
+    var getMostRecentWindow = windowMediator.getMostRecentWindow
                                             .bind(windowMediator);
 
-    let exports = {
+    var exports = {
         createOpenFilePicker: createOpenFilePicker,
         createSaveFilePicker: createSaveFilePicker,
         readFileToString: readFileToString,
@@ -77,26 +77,26 @@ const Utils = (function() {
     return exports;
 })();
 
-const Pref = function(branchRoot) {
+var Pref = function(branchRoot) {
 
-    const supportsStringClass = Cc['@mozilla.org/supports-string;1'];
-    const prefService = Cc['@mozilla.org/preferences-service;1']
+    var supportsStringClass = Cc['@mozilla.org/supports-string;1'];
+    var prefService = Cc['@mozilla.org/preferences-service;1']
                            .getService(Ci.nsIPrefService);
 
-    const new_nsiSupportsString = function(data) {
-        let string = supportsStringClass.createInstance(Ci.nsISupportsString);
+    var new_nsiSupportsString = function(data) {
+        var string = supportsStringClass.createInstance(Ci.nsISupportsString);
         string.data = data;
         return string;
     };
 
-    let branch = prefService.getBranch(branchRoot);
+    var branch = prefService.getBranch(branchRoot);
 
-    let setString = function(key, value) {
+    var setString = function(key, value) {
         branch.setComplexValue(key, Ci.nsISupportsString,
                                new_nsiSupportsString(value));
     };
-    let getString = function(key, defaultValue) {
-        let value;
+    var getString = function(key, defaultValue) {
+        var value;
         try {
             value = branch.getComplexValue(key, Ci.nsISupportsString).data;
         } catch(error) {
@@ -105,7 +105,7 @@ const Pref = function(branchRoot) {
         return value;
     };
 
-    let exports = {
+    var exports = {
         setString: setString,
         getString: getString,
     }
@@ -114,33 +114,33 @@ const Pref = function(branchRoot) {
 
 /* main */
 
-const EDITOR_XUL = 'chrome://referrercontrol/content/rule_editor.xul';
-const EDITOR_NAME = 'referrercontrol:ruleeditor';
-const EDITOR_FEATURES = 'chrome,modal,centerscreen';
-const PREF_BRANCH = 'extensions.referrercontrol.';
+var EDITOR_XUL = 'chrome://referrercontrol/content/rule_editor.xul';
+var EDITOR_NAME = 'referrercontrol:ruleeditor';
+var EDITOR_FEATURES = 'chrome,modal,centerscreen';
+var PREF_BRANCH = 'extensions.referrercontrol.';
 
 // I want to rename to "rules" in later version
 // but can't break compatible, maybe I need write migrate code.
-const PREF_NAME_RULES = 'customRules';
+var PREF_NAME_RULES = 'customRules';
 
-let _ = null;
-let loadLocalization = function() {
-    let stringbundle = document.getElementById('referrercontrol-strings');
+var _ = null;
+var loadLocalization = function() {
+    var stringbundle = document.getElementById('referrercontrol-strings');
     _ = function(name) stringbundle.getString(name);
 };
 
-let policyNames = null;
-let initPolicyNames = function() {
+var policyNames = null;
+var initPolicyNames = function() {
     policyNames = [_('skip'), _('remove'),
                    _('sourceHost'), _('sourceDomain'),
                    _('targetHost'), _('targetDomain'), _('targetUrl')];
 };
 
-let buildRulesFromJsonRules = function(jsonRules) {
-    let rules = [];
-    for (let jsonRule of jsonRules) {
+var buildRulesFromJsonRules = function(jsonRules) {
+    var rules = [];
+    for (var jsonRule of jsonRules) {
 
-        let rule = {};
+        var rule = {};
         rule.source = jsonRule.source || '';
         rule.target = jsonRule.target || '';
         rule.value = jsonRule.value;
@@ -154,30 +154,30 @@ let buildRulesFromJsonRules = function(jsonRules) {
     return rules;
 };
 
-let pref = Pref(PREF_BRANCH);
-let Rules = (function() {
-    let jsonRules = JSON.parse(pref.getString(PREF_NAME_RULES) || '[]');
+var pref = Pref(PREF_BRANCH);
+var Rules = (function() {
+    var jsonRules = JSON.parse(pref.getString(PREF_NAME_RULES) || '[]');
     return buildRulesFromJsonRules(jsonRules);
 })();
 
-let createTreeItem = function(index, rule) {
-    let treeitem = document.createElementNS(NS_XUL, 'treeitem');
-    let treerow = document.createElementNS(NS_XUL, 'treerow');
+var createTreeItem = function(index, rule) {
+    var treeitem = document.createElementNS(NS_XUL, 'treeitem');
+    var treerow = document.createElementNS(NS_XUL, 'treerow');
 
-    let indexCell = document.createElementNS(NS_XUL, 'treecell')
+    var indexCell = document.createElementNS(NS_XUL, 'treecell')
     indexCell.setAttribute('label', index);
 
-    let sourceLabel = rule.source || '<' + _('any') + '>';
-    let sourceCell = document.createElementNS(NS_XUL, 'treecell');
+    var sourceLabel = rule.source || '<' + _('any') + '>';
+    var sourceCell = document.createElementNS(NS_XUL, 'treecell');
     sourceCell.setAttribute('label', sourceLabel);
 
-    let targetLabel = rule.target || '<' + _('any') + '>';
-    let targetCell = document.createElementNS(NS_XUL, 'treecell');
+    var targetLabel = rule.target || '<' + _('any') + '>';
+    var targetCell = document.createElementNS(NS_XUL, 'treecell');
     targetCell.setAttribute('label', targetLabel);
 
-    let isCustom = typeof(rule.value) === 'string';
-    let valueLabel = isCustom ? rule.value : '<' + policyNames[rule.value] + '>';
-    let valueCell = document.createElementNS(NS_XUL, 'treecell');
+    var isCustom = typeof(rule.value) === 'string';
+    var valueLabel = isCustom ? rule.value : '<' + policyNames[rule.value] + '>';
+    var valueCell = document.createElementNS(NS_XUL, 'treecell');
     valueCell.setAttribute('label', valueLabel);
 
     treerow.appendChild(indexCell);
@@ -188,10 +188,10 @@ let createTreeItem = function(index, rule) {
     return treeitem;
 }
 
-let updatePref = function() {
-    let jsonRules = [];
-    for (let rule of Rules) {
-        let jsonRule = {};
+var updatePref = function() {
+    var jsonRules = [];
+    for (var rule of Rules) {
+        var jsonRule = {};
         jsonRule.source = rule.source || undefined;
         jsonRule.target = rule.target || undefined;
         jsonRule.value = rule.value;
@@ -199,45 +199,45 @@ let updatePref = function() {
         jsonRules.push(jsonRule);
     }
 
-    let jsonText = JSON.stringify(jsonRules, null);
+    var jsonText = JSON.stringify(jsonRules, null);
     pref.setString(PREF_NAME_RULES, jsonText);
 };
 
-let refreshUI = function() {
+var refreshUI = function() {
     // recreate the rule treeview
-    let list = document.getElementById('rules-list');
+    var list = document.getElementById('rules-list');
     list.innerHTML = '';
-    for (let i = 0; i < Rules.length; i += 1) {
-        let treeitem = createTreeItem(i + 1, Rules[i]);
+    for (var i = 0; i < Rules.length; i += 1) {
+        var treeitem = createTreeItem(i + 1, Rules[i]);
         list.appendChild(treeitem);
     }
 
     // disable some menuitems when no rules in the list
-    let menuitems = document.querySelectorAll('menuitem.disable_when_empty');
+    var menuitems = document.querySelectorAll('menuitem.disable_when_empty');
     if (Rules.length == 0) {
-        for (let menuitem of menuitems) {
+        for (var menuitem of menuitems) {
             menuitem.setAttribute('disabled', true);
         }
     } else {
-        for (let menuitem of menuitems) {
+        for (var menuitem of menuitems) {
             menuitem.removeAttribute('disabled');
         }
     }
 };
 
-let openEditor = function(rule) {
-    let result = {isAccept: false};
+var openEditor = function(rule) {
+    var result = {isAccept: false};
     openDialog(EDITOR_XUL, EDITOR_NAME, EDITOR_FEATURES, result, rule);
     return result.isAccept;
 };
 
 /* rule control */
 
-let mergeRules = function(spareRules) {
+var mergeRules = function(spareRules) {
 
-    let getSameRule = function(spareRule) {
+    var getSameRule = function(spareRule) {
         // if "source" and "target" is same, treat as same rule
-        for (let rule of Rules) {
+        for (var rule of Rules) {
             if (rule.source == spareRule.source &&
                     rule.target == spareRule.target) {
                 return rule;
@@ -246,8 +246,8 @@ let mergeRules = function(spareRules) {
         return null;
     };
 
-    for (let spareRule of spareRules) {
-        let sameRule = getSameRule(spareRule);
+    for (var spareRule of spareRules) {
+        var sameRule = getSameRule(spareRule);
 
         // if exists same rule, then update the "value" and comment,
         // otherwise just append it.
@@ -263,17 +263,17 @@ let mergeRules = function(spareRules) {
     refreshUI();
 };
 
-let importRules = function(fileObject) {
+var importRules = function(fileObject) {
 
 
-    let parseRefControlRuleFile = function(text) {
+    var parseRefControlRuleFile = function(text) {
 
-        let createJsonRule = function(line) {
-            let sepPos = line.indexOf('=');
-            let siteString = line.slice(0, sepPos);
-            let actionString = line.slice(sepPos + 1);
+        var createJsonRule = function(line) {
+            var sepPos = line.indexOf('=');
+            var siteString = line.slice(0, sepPos);
+            var actionString = line.slice(sepPos + 1);
 
-            let jsonRule = {};
+            var jsonRule = {};
 
             // convert target
             // RefControl use domain, partly match, but Referrer Control use
@@ -283,16 +283,16 @@ let importRules = function(fileObject) {
             //     '^https?://(?:[^/]+\\.)*google\\.com/.*$'
             // more detail see
             //     https://github.com/muzuiget/referrer_control/issues/23
-            // also need to wrap with "/", let the rule parser treat it as
+            // also need to wrap with "/", var the rule parser treat it as
             // regular expression.
-            let targetTpl = '/^https?://(?:[^/]+\\.)*${domain}/.*$/';
-            let domain = siteString.replace(/\./g, '\\.');
+            var targetTpl = '/^https?://(?:[^/]+\\.)*${domain}/.*$/';
+            var domain = siteString.replace(/\./g, '\\.');
             jsonRule.target = targetTpl.replace('${domain}', domain);
 
             // convert policy
             // Referrer Control handle third-party request globally,
             // so ignore the setting in RefControl
-            let action;
+            var action;
             if (actionString.startsWith('@3RDPARTY:')) {
                 action = actionString.replace('@3RDPARTY:', '');
             } else {
@@ -317,24 +317,24 @@ let importRules = function(fileObject) {
                     break;
             }
 
-            // add the line content to comment let user know this rule
+            // add the line content to comment var user know this rule
             // is convert from RefControl rule file
             jsonRule.comment = 'RefControl: ' + line;
 
             return jsonRule;
         };
 
-        let lines = text.split('\n')
+        var lines = text.split('\n')
                         .map(function(s) s.trim()) // remove spaces
                         .slice(1) // skip first line '[RefControl]'
                         .filter(function(s) s !== ''); // remove empty lines
-        let jsonRules = lines.map(createJsonRule);
+        var jsonRules = lines.map(createJsonRule);
         return jsonRules;
     }
 
-    let callback = {
+    var callback = {
         success: function(text) {
-            let jsonRules;
+            var jsonRules;
             try {
                 if (text.startsWith('[RefControl]')) {
                     jsonRules = parseRefControlRuleFile(text);
@@ -347,7 +347,7 @@ let importRules = function(fileObject) {
                 return;
             }
 
-            let spareRules;
+            var spareRules;
             if (jsonRules && jsonRules.length > 0) {
                 spareRules = buildRulesFromJsonRules(jsonRules);
             } else {
@@ -371,16 +371,16 @@ let importRules = function(fileObject) {
 
 };
 
-let exportRules = function(fileObject) {
+var exportRules = function(fileObject) {
 
-    let jsonObject = {
+    var jsonObject = {
         title: _('ruleFileTitle'),
         date: (new Date()).toLocaleFormat('%Y-%m-%d %H:%M:%S'),
         rules: Rules,
     };
-    let jsonText = JSON.stringify(jsonObject, null, '    ');
+    var jsonText = JSON.stringify(jsonObject, null, '    ');
 
-    let callback = {
+    var callback = {
         success: function() {},
         fail: function(statusCode) {
             alert(_('writeFileFail').replace('${code}', statusCode));
@@ -391,58 +391,58 @@ let exportRules = function(fileObject) {
 
 };
 
-let moveUpRule = function(index) {
+var moveUpRule = function(index) {
     if (index === 0) {
         return;
     }
 
-    let p = index - 1;
-    let i = index;
+    var p = index - 1;
+    var i = index;
     [Rules[p], Rules[i]] = [Rules[i], Rules[p]];
 
     updatePref();
     refreshUI();
 };
 
-let moveDownRule = function(index) {
+var moveDownRule = function(index) {
     if (index === Rules.length - 1) {
         return;
     }
 
-    let n = index + 1;
-    let i = index;
+    var n = index + 1;
+    var i = index;
     [Rules[n], Rules[i]] = [Rules[i], Rules[n]];
 
     updatePref();
     refreshUI();
 };
 
-let moveToTopRule = function(index) {
+var moveToTopRule = function(index) {
     if (index === 0) {
         return;
     }
 
-    let rule = Rules.splice(index, 1)[0];
+    var rule = Rules.splice(index, 1)[0];
     Rules.unshift(rule);
 
     updatePref();
     refreshUI();
 };
 
-let moveToBottomRule = function(index) {
+var moveToBottomRule = function(index) {
     if (index === Rules.length - 1) {
         return;
     }
 
-    let rule = Rules.splice(index, 1)[0];
+    var rule = Rules.splice(index, 1)[0];
     Rules.push(rule);
 
     updatePref();
     refreshUI();
 };
 
-let newRule = function() {
-    let rule = {
+var newRule = function() {
+    var rule = {
         source: '',
         target: '',
         value: 1, // the "remove" policy
@@ -458,8 +458,8 @@ let newRule = function() {
     refreshUI();
 };
 
-let editRule = function(index) {
-    let rule = Rules[index];
+var editRule = function(index) {
+    var rule = Rules[index];
 
     if (!openEditor(rule)) {
         return;
@@ -469,14 +469,14 @@ let editRule = function(index) {
     refreshUI();
 };
 
-let removeRule = function(index) {
+var removeRule = function(index) {
     Rules.splice(index, 1);
     updatePref();
     refreshUI();
 };
 
-let clearRules = function() {
-    let response = confirm(_('clearRulesWarnning'));
+var clearRules = function() {
+    var response = confirm(_('clearRulesWarnning'));
     if (!response) {
         return;
     }
@@ -489,12 +489,12 @@ let clearRules = function() {
 
 // import/export
 
-let DEFAULT_FILENAME = 'referrer_control.json';
+var DEFAULT_FILENAME = 'referrer_control.json';
 
-let lastSelectedFile = null;
+var lastSelectedFile = null;
 
-let importDialog = null;
-let onImportCommand = function() {
+var importDialog = null;
+var onImportCommand = function() {
     if (!importDialog) {
         importDialog = Utils.createOpenFilePicker(_('importTitle'), DEFAULT_FILENAME);
 
@@ -514,8 +514,8 @@ let onImportCommand = function() {
     });
 };
 
-let exportDialog = null;
-let onExportCommand = function() {
+var exportDialog = null;
+var onExportCommand = function() {
     if (!exportDialog) {
         exportDialog = Utils.createSaveFilePicker(_('exportTitle'), DEFAULT_FILENAME);
         exportDialog.appendFilter(_('ruleFiles'), '*.json');
@@ -535,33 +535,33 @@ let onExportCommand = function() {
 
 // movement
 
-let onMoveUpCommand = function() {
-    let treeview = document.getElementById('rules-tree').view;
-    let index = treeview.selection.currentIndex;
+var onMoveUpCommand = function() {
+    var treeview = document.getElementById('rules-tree').view;
+    var index = treeview.selection.currentIndex;
     if (index !== -1) {
         moveUpRule(index);
     }
 };
 
-let onMoveDownCommand = function() {
-    let treeview = document.getElementById('rules-tree').view;
-    let index = treeview.selection.currentIndex;
+var onMoveDownCommand = function() {
+    var treeview = document.getElementById('rules-tree').view;
+    var index = treeview.selection.currentIndex;
     if (index !== -1) {
         moveDownRule(index);
     }
 };
 
-let onMoveToTopCommand = function() {
-    let treeview = document.getElementById('rules-tree').view;
-    let index = treeview.selection.currentIndex;
+var onMoveToTopCommand = function() {
+    var treeview = document.getElementById('rules-tree').view;
+    var index = treeview.selection.currentIndex;
     if (index !== -1) {
         moveToTopRule(index);
     }
 };
 
-let onMoveToBottomCommand = function() {
-    let treeview = document.getElementById('rules-tree').view;
-    let index = treeview.selection.currentIndex;
+var onMoveToBottomCommand = function() {
+    var treeview = document.getElementById('rules-tree').view;
+    var index = treeview.selection.currentIndex;
     if (index !== -1) {
         moveToBottomRule(index);
     }
@@ -569,45 +569,45 @@ let onMoveToBottomCommand = function() {
 
 // CRUD
 
-let onNewCommand = function() {
+var onNewCommand = function() {
     newRule();
 };
 
-let onEditCommand = function() {
-    let treeview = document.getElementById('rules-tree').view;
-    let index = treeview.selection.currentIndex;
+var onEditCommand = function() {
+    var treeview = document.getElementById('rules-tree').view;
+    var index = treeview.selection.currentIndex;
     if (index !== -1) {
         editRule(index);
     }
 };
 
-let onRemoveCommand = function() {
-    let treeview = document.getElementById('rules-tree').view;
-    let index = treeview.selection.currentIndex;
+var onRemoveCommand = function() {
+    var treeview = document.getElementById('rules-tree').view;
+    var index = treeview.selection.currentIndex;
     if (index !== -1) {
         removeRule(index);
     }
 };
 
-let onClearCommand = function() {
+var onClearCommand = function() {
     clearRules();
 };
 
 /* others */
 
-let onTreeDblclick = function(event) {
-    let index = event.target._lastSelectedRow;
+var onTreeDblclick = function(event) {
+    var index = event.target._lastSelectedRow;
     if (index === undefined || index < 0) {
         return;
     }
     editRule(index);
 };
 
-let doHelp = function() {
-    let helpUrl = 'https://github.com/muzuiget/referrer_control/wiki#rules';
-    let browserWindow = Utils.getMostRecentWindow('navigator:browser');
+var doHelp = function() {
+    var helpUrl = 'https://github.com/muzuiget/referrer_control/wiki#rules';
+    var browserWindow = Utils.getMostRecentWindow('navigator:browser');
     if (browserWindow) {
-        let gBrowser = browserWindow.gBrowser;
+        var gBrowser = browserWindow.gBrowser;
         gBrowser.selectedTab = gBrowser.addTab(helpUrl);
     } else {
         window.open(helpUrl);
@@ -615,7 +615,7 @@ let doHelp = function() {
     return false;
 };
 
-let onDocumentLoad = function() {
+var onDocumentLoad = function() {
     loadLocalization();
     initPolicyNames();
     refreshUI();

@@ -4,27 +4,27 @@
 
 "use strict";
 
-const log = function() { dump(Array.slice(arguments).join(' ') + '\n'); };
-const trace = function(error) { log(error); log(error.stack); };
-const dirobj = function(obj) { for (let i in obj) { log(i, ':', obj[i]); } };
+var log = function() { dump(Array.slice(arguments).join(' ') + '\n'); };
+var trace = function(error) { log(error); log(error.stack); };
+var dirobj = function(obj) { for (var i in obj) { log(i, ':', obj[i]); } };
 
-const {classes: Cc, interfaces: Ci} = Components;
-const NS_XUL = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
+var {classes: Cc, interfaces: Ci} = Components;
+var NS_XUL = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
 
 /* library */
 
-const Utils = (function() {
+var Utils = (function() {
 
-    const etldService = Cc['@mozilla.org/network/effective-tld-service;1']
+    var etldService = Cc['@mozilla.org/network/effective-tld-service;1']
                            .getService(Ci.nsIEffectiveTLDService);
-    const sbService = Cc['@mozilla.org/intl/stringbundle;1']
+    var sbService = Cc['@mozilla.org/intl/stringbundle;1']
                          .getService(Ci.nsIStringBundleService);
-    const windowMediator = Cc['@mozilla.org/appshell/window-mediator;1']
+    var windowMediator = Cc['@mozilla.org/appshell/window-mediator;1']
                               .getService(Ci.nsIWindowMediator);
 
-    let wildcard2RegExp = function(pattern) {
-        let firstChar = pattern.charAt(0);
-        let lastChat = pattern.charAt(pattern.length - 1);
+    var wildcard2RegExp = function(pattern) {
+        var firstChar = pattern.charAt(0);
+        var lastChat = pattern.charAt(pattern.length - 1);
         if (firstChar + lastChat === '//') {
             return new RegExp(pattern.slice(1, -1));
         } else {
@@ -32,10 +32,10 @@ const Utils = (function() {
             return new RegExp(pattern);
         }
     };
-    let fakeTrueTest = {test: function() true};
+    var fakeTrueTest = {test: function() true};
 
-    let getDomain = function(uri) {
-        let domain;
+    var getDomain = function(uri) {
+        var domain;
         try {
             domain = etldService.getBaseDomain(uri);
         } catch(error) {
@@ -43,7 +43,7 @@ const Utils = (function() {
         }
         return domain;
     };
-    let isSameDomains = function(uri1, uri2, strict) {
+    var isSameDomains = function(uri1, uri2, strict) {
         if (strict) {
             return uri1.host === uri2.host;
         } else {
@@ -51,21 +51,21 @@ const Utils = (function() {
         }
     };
 
-    let localization = function(id, name) {
-        let uri = 'chrome://' + id + '/locale/' + name + '.properties';
+    var localization = function(id, name) {
+        var uri = 'chrome://' + id + '/locale/' + name + '.properties';
         return sbService.createBundle(uri).GetStringFromName;
     };
 
-    let setAttrs = function(widget, attrs) {
-        for (let [key, value] in Iterator(attrs)) {
+    var setAttrs = function(widget, attrs) {
+        for (var [key, value] in Iterator(attrs)) {
             widget.setAttribute(key, value);
         }
     };
 
-    let getMostRecentWindow = windowMediator.getMostRecentWindow
+    var getMostRecentWindow = windowMediator.getMostRecentWindow
                                             .bind(windowMediator);
 
-    let exports = {
+    var exports = {
         wildcard2RegExp: wildcard2RegExp,
         fakeTrueTest: fakeTrueTest,
         getDomain: getDomain,
@@ -77,21 +77,21 @@ const Utils = (function() {
     return exports;
 })();
 
-const StyleManager = (function() {
+var StyleManager = (function() {
 
-    const styleService = Cc['@mozilla.org/content/style-sheet-service;1']
+    var styleService = Cc['@mozilla.org/content/style-sheet-service;1']
                             .getService(Ci.nsIStyleSheetService);
-    const ioService = Cc['@mozilla.org/network/io-service;1']
+    var ioService = Cc['@mozilla.org/network/io-service;1']
                          .getService(Ci.nsIIOService);
 
-    const STYLE_TYPE = styleService.USER_SHEET;
+    var STYLE_TYPE = styleService.USER_SHEET;
 
-    const new_nsiURI = function(uri) ioService.newURI(uri, null, null);
+    var new_nsiURI = function(uri) ioService.newURI(uri, null, null);
 
-    let uris = [];
+    var uris = [];
 
-    let load = function(uri) {
-        let nsiURI = new_nsiURI(uri);
+    var load = function(uri) {
+        var nsiURI = new_nsiURI(uri);
         if (styleService.sheetRegistered(nsiURI, STYLE_TYPE)) {
             return;
         }
@@ -99,24 +99,24 @@ const StyleManager = (function() {
         uris.push(uri);
     };
 
-    let unload = function(uri) {
-        let nsiURI = new_nsiURI(uri);
+    var unload = function(uri) {
+        var nsiURI = new_nsiURI(uri);
         if (!styleService.sheetRegistered(nsiURI, STYLE_TYPE)) {
             return;
         }
         styleService.unregisterSheet(nsiURI, STYLE_TYPE);
-        let start = uris.indexOf(uri);
+        var start = uris.indexOf(uri);
         uris.splice(start, 1);
     };
 
-    let destory = function() {
-        for (let uri of uris.slice(0)) {
+    var destory = function() {
+        for (var uri of uris.slice(0)) {
             unload(uri);
         }
         uris = null;
     };
 
-    let exports = {
+    var exports = {
         load: load,
         unload: unload,
         destory: destory,
@@ -124,18 +124,18 @@ const StyleManager = (function() {
     return exports;
 })();
 
-const BrowserManager = (function() {
+var BrowserManager = (function() {
 
-    const windowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1']
+    var windowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1']
                              .getService(Ci.nsIWindowWatcher);
 
-    const BROWSER_URI = 'chrome://browser/content/browser.xul';
+    var BROWSER_URI = 'chrome://browser/content/browser.xul';
 
-    let listeners = [];
+    var listeners = [];
 
-    let onload = function(event) {
-        for (let listener of listeners) {
-            let window = event.currentTarget;
+    var onload = function(event) {
+        for (var listener of listeners) {
+            var window = event.currentTarget;
             window.removeEventListener('load', onload);
             if (window.location.href !== BROWSER_URI) {
                 return;
@@ -148,7 +148,7 @@ const BrowserManager = (function() {
         }
     };
 
-    let observer = {
+    var observer = {
         observe: function(window, topic, data) {
             if (topic !== 'domwindowopened') {
                 return;
@@ -157,10 +157,10 @@ const BrowserManager = (function() {
         }
     };
 
-    let run = function(func, uri) {
-        let enumerator = windowWatcher.getWindowEnumerator();
+    var run = function(func, uri) {
+        var enumerator = windowWatcher.getWindowEnumerator();
         while (enumerator.hasMoreElements()) {
-            let window = enumerator.getNext();
+            var window = enumerator.getNext();
             if (window.location.href !== BROWSER_URI) {
                 continue;
             }
@@ -173,29 +173,29 @@ const BrowserManager = (function() {
         }
     };
 
-    let addListener = function(listener) {
+    var addListener = function(listener) {
         listeners.push(listener);
     };
 
-    let removeListener = function(listener) {
-        let start = listeners.indexOf(listener);
+    var removeListener = function(listener) {
+        var start = listeners.indexOf(listener);
         if (start !== -1) {
             listeners.splice(start, 1);
         }
     };
 
-    let initialize = function() {
+    var initialize = function() {
         windowWatcher.registerNotification(observer);
     };
 
-    let destory = function() {
+    var destory = function() {
         windowWatcher.unregisterNotification(observer);
         listeners = null;
     };
 
     initialize();
 
-    let exports = {
+    var exports = {
         run: run,
         addListener: addListener,
         removeListener: removeListener,
@@ -204,25 +204,25 @@ const BrowserManager = (function() {
     return exports;
 })();
 
-const ToolbarManager = (function() {
+var ToolbarManager = (function() {
 
     /**
      * Remember the button position.
      * This function Modity from addon-sdk file lib/sdk/widget.js, and
      * function BrowserWindow.prototype._insertNodeInToolbar
      */
-    let layoutWidget = function(document, button, isFirstRun) {
+    var layoutWidget = function(document, button, isFirstRun) {
 
         // Add to the customization palette
-        let toolbox = document.getElementById('navigator-toolbox');
+        var toolbox = document.getElementById('navigator-toolbox');
         toolbox.palette.appendChild(button);
 
         // Search for widget toolbar by reading toolbar's currentset attribute
-        let container = null;
-        let toolbars = document.getElementsByTagName('toolbar');
-        let id = button.getAttribute('id');
-        for (let i = 0; i < toolbars.length; i += 1) {
-            let toolbar = toolbars[i];
+        var container = null;
+        var toolbars = document.getElementsByTagName('toolbar');
+        var id = button.getAttribute('id');
+        for (var i = 0; i < toolbars.length; i += 1) {
+            var toolbar = toolbars[i];
             if (toolbar.getAttribute('currentset').indexOf(id) !== -1) {
                 container = toolbar;
             }
@@ -239,12 +239,12 @@ const ToolbarManager = (function() {
 
         // Now retrieve a reference to the next toolbar item
         // by reading currentset attribute on the toolbar
-        let nextNode = null;
-        let currentSet = container.getAttribute('currentset');
-        let ids = (currentSet === '__empty') ? [] : currentSet.split(',');
-        let idx = ids.indexOf(id);
+        var nextNode = null;
+        var currentSet = container.getAttribute('currentset');
+        var ids = (currentSet === '__empty') ? [] : currentSet.split(',');
+        var idx = ids.indexOf(id);
         if (idx !== -1) {
-            for (let i = idx; i < ids.length; i += 1) {
+            for (var i = idx; i < ids.length; i += 1) {
                 nextNode = document.getElementById(ids[i]);
                 if (nextNode) {
                     break;
@@ -263,7 +263,7 @@ const ToolbarManager = (function() {
         }
     };
 
-    let addWidget = function(window, widget, isFirstRun) {
+    var addWidget = function(window, widget, isFirstRun) {
         try {
             layoutWidget(window.document, widget, isFirstRun);
         } catch(error) {
@@ -271,32 +271,32 @@ const ToolbarManager = (function() {
         }
     };
 
-    let removeWidget = function(window, widgetId) {
+    var removeWidget = function(window, widgetId) {
         try {
-            let widget = window.document.getElementById(widgetId);
+            var widget = window.document.getElementById(widgetId);
             widget.parentNode.removeChild(widget);
         } catch(error) {
             trace(error);
         }
     };
 
-    let exports = {
+    var exports = {
         addWidget: addWidget,
         removeWidget: removeWidget,
     };
     return exports;
 })();
 
-let RequestManager = (function() {
+var RequestManager = (function() {
 
-    const obsService = Cc['@mozilla.org/observer-service;1']
+    var obsService = Cc['@mozilla.org/observer-service;1']
                           .getService(Ci.nsIObserverService);
 
-    const REQUEST_TOPIC = 'http-on-modify-request';
+    var REQUEST_TOPIC = 'http-on-modify-request';
 
-    let observers = [];
+    var observers = [];
 
-    let addObserver = function(observer) {
+    var addObserver = function(observer) {
         try {
             obsService.addObserver(observer, REQUEST_TOPIC, false);
         } catch(error) {
@@ -305,7 +305,7 @@ let RequestManager = (function() {
         observers.push(observers);
     };
 
-    let removeObserver = function(observer) {
+    var removeObserver = function(observer) {
         try {
             obsService.removeObserver(observer, REQUEST_TOPIC, false);
         } catch(error) {
@@ -313,14 +313,14 @@ let RequestManager = (function() {
         }
     };
 
-    let destory = function() {
-        for (let observer of observers) {
+    var destory = function() {
+        for (var observer of observers) {
             removeObserver(observer);
         }
         observers = null;
     };
 
-    let exports = {
+    var exports = {
         addObserver: addObserver,
         removeObserver: removeObserver,
         destory: destory,
@@ -328,16 +328,16 @@ let RequestManager = (function() {
     return exports;
 })();
 
-let ExtensionManager = (function() {
+var ExtensionManager = (function() {
 
-    const obsService = Cc['@mozilla.org/observer-service;1']
+    var obsService = Cc['@mozilla.org/observer-service;1']
                           .getService(Ci.nsIObserverService);
 
-    const REQUEST_TOPIC = 'addon-options-displayed';
+    var REQUEST_TOPIC = 'addon-options-displayed';
 
-    let observers = [];
+    var observers = [];
 
-    let addObserver = function(observer) {
+    var addObserver = function(observer) {
         try {
             obsService.addObserver(observer, REQUEST_TOPIC, false);
         } catch(error) {
@@ -346,7 +346,7 @@ let ExtensionManager = (function() {
         observers.push(observers);
     };
 
-    let removeObserver = function(observer) {
+    var removeObserver = function(observer) {
         try {
             obsService.removeObserver(observer, REQUEST_TOPIC, false);
         } catch(error) {
@@ -354,14 +354,14 @@ let ExtensionManager = (function() {
         }
     };
 
-    let destory = function() {
-        for (let observer of observers) {
+    var destory = function() {
+        for (var observer of observers) {
             removeObserver(observer);
         }
         observers = null;
     };
 
-    let exports = {
+    var exports = {
         addObserver: addObserver,
         removeObserver: removeObserver,
         destory: destory,
@@ -369,21 +369,21 @@ let ExtensionManager = (function() {
     return exports;
 })();
 
-const Pref = function(branchRoot) {
+var Pref = function(branchRoot) {
 
-    const supportsStringClass = Cc['@mozilla.org/supports-string;1'];
-    const prefService = Cc['@mozilla.org/preferences-service;1']
+    var supportsStringClass = Cc['@mozilla.org/supports-string;1'];
+    var prefService = Cc['@mozilla.org/preferences-service;1']
                            .getService(Ci.nsIPrefService);
 
-    const new_nsiSupportsString = function(data) {
-        let string = supportsStringClass.createInstance(Ci.nsISupportsString);
+    var new_nsiSupportsString = function(data) {
+        var string = supportsStringClass.createInstance(Ci.nsISupportsString);
         string.data = data;
         return string;
     };
 
-    let branch = prefService.getBranch(branchRoot);
+    var branch = prefService.getBranch(branchRoot);
 
-    let setBool = function(key, value) {
+    var setBool = function(key, value) {
         try {
             branch.setBoolPref(key, value);
         } catch(error) {
@@ -391,8 +391,8 @@ const Pref = function(branchRoot) {
             branch.setBoolPref(key, value);
         }
     };
-    let getBool = function(key, defaultValue) {
-        let value;
+    var getBool = function(key, defaultValue) {
+        var value;
         try {
             value = branch.getBoolPref(key);
         } catch(error) {
@@ -401,7 +401,7 @@ const Pref = function(branchRoot) {
         return value;
     };
 
-    let setInt = function(key, value) {
+    var setInt = function(key, value) {
         try {
             branch.setIntPref(key, value);
         } catch(error) {
@@ -409,8 +409,8 @@ const Pref = function(branchRoot) {
             branch.setIntPref(key, value);
         }
     };
-    let getInt = function(key, defaultValue) {
-        let value;
+    var getInt = function(key, defaultValue) {
+        var value;
         try {
             value = branch.getIntPref(key);
         } catch(error) {
@@ -419,7 +419,7 @@ const Pref = function(branchRoot) {
         return value;
     };
 
-    let setString = function(key, value) {
+    var setString = function(key, value) {
         try {
             branch.setComplexValue(key, Ci.nsISupportsString,
                                    new_nsiSupportsString(value));
@@ -429,8 +429,8 @@ const Pref = function(branchRoot) {
                                    new_nsiSupportsString(value));
         }
     };
-    let getString = function(key, defaultValue) {
-        let value;
+    var getString = function(key, defaultValue) {
+        var value;
         try {
             value = branch.getComplexValue(key, Ci.nsISupportsString).data;
         } catch(error) {
@@ -439,14 +439,14 @@ const Pref = function(branchRoot) {
         return value;
     };
 
-    let addObserver = function(observer) {
+    var addObserver = function(observer) {
         try {
             branch.addObserver('', observer, false);
         } catch(error) {
             trace(error);
         }
     };
-    let removeObserver = function(observer) {
+    var removeObserver = function(observer) {
         try {
             branch.removeObserver('', observer, false);
         } catch(error) {
@@ -454,7 +454,7 @@ const Pref = function(branchRoot) {
         }
     };
 
-    let exports = {
+    var exports = {
         setBool: setBool,
         getBool: getBool,
         setInt: setInt,
@@ -469,17 +469,17 @@ const Pref = function(branchRoot) {
 
 /* main */
 
-let _ = null;
-let loadLocalization = function() {
+var _ = null;
+var loadLocalization = function() {
     _ = Utils.localization('referrercontrol', 'global');
 };
 
-let ruleCompiler = function(text) {
+var ruleCompiler = function(text) {
     if (!text.trim()) {
         return [];
     }
 
-    let items;
+    var items;
     try {
         items = JSON.parse(text);
     } catch(error) {
@@ -487,13 +487,13 @@ let ruleCompiler = function(text) {
         return [];
     }
 
-    let toRegExp = Utils.wildcard2RegExp;
-    let fakeRegExp = Utils.fakeTrueTest;
+    var toRegExp = Utils.wildcard2RegExp;
+    var fakeRegExp = Utils.fakeTrueTest;
 
-    let rules = [];
-    for (let item of items) {
-        let {source, target, value} = item;
-        let rule = {};
+    var rules = [];
+    for (var item of items) {
+        var {source, target, value} = item;
+        var rule = {};
 
         rule.source = source && toRegExp(source) || fakeRegExp;
         rule.target = target && toRegExp(target) || fakeRegExp;
@@ -509,9 +509,9 @@ let ruleCompiler = function(text) {
     return rules;
 };
 
-let Referrer = (function() {
+var Referrer = (function() {
 
-    let toUrl = function(sourceURI, targetURI, policy) {
+    var toUrl = function(sourceURI, targetURI, policy) {
         // When sourceURI is null, that is original Referer is blank.
         // So policy "source host" and "source domain" is meaningless,
         // just treat as "remove".
@@ -519,7 +519,7 @@ let Referrer = (function() {
             return '';
         }
 
-        let value;
+        var value;
         switch (policy) {
             case 0: // skip
                 return null;
@@ -543,11 +543,11 @@ let Referrer = (function() {
                 return null;
         }
 
-        let scheme = sourceURI && sourceURI.scheme || targetURI.scheme;
+        var scheme = sourceURI && sourceURI.scheme || targetURI.scheme;
         return scheme + '://' + value + '/';
     };
 
-    let debugResult = function(sourceURI, targetURI, result) {
+    var debugResult = function(sourceURI, targetURI, result) {
         console.group();
         console.log('source', sourceURI && sourceURI.spec || ''),
         console.log('target', targetURI.spec),
@@ -555,11 +555,11 @@ let Referrer = (function() {
         console.groupEnd();
     };
 
-    let getFor = function(sourceURI, targetURI, rules, policy) {
-        for (let rule of rules) {
-            let {source, target, isUrl, url, code} = rule;
+    var getFor = function(sourceURI, targetURI, rules, policy) {
+        for (var rule of rules) {
+            var {source, target, isUrl, url, code} = rule;
 
-            let isMatch;
+            var isMatch;
             if (sourceURI) {
                 isMatch = source.test(sourceURI.spec) &&
                                 target.test(targetURI.spec);
@@ -579,32 +579,32 @@ let Referrer = (function() {
         return toUrl(sourceURI, targetURI, policy);
     };
 
-    let debugGetFor = function(sourceURI, targetURI, rules, policy) {
-        let result = getFor(sourceURI, targetURI, rules, policy);
+    var debugGetFor = function(sourceURI, targetURI, rules, policy) {
+        var result = getFor(sourceURI, targetURI, rules, policy);
         debugResult(sourceURI, targetURI, result);
         return result;
     };
 
-    let exports = {
+    var exports = {
         //getFor: getFor,
         getFor: debugGetFor,
     }
     return exports;
 })();
 
-let ReferrerControl = function() {
+var ReferrerControl = function() {
 
-    const EXTENSION_ID = 'referrercontrol@qixinglu.com';
-    const EXTENSION_NAME = 'Referrer Control';
-    const BUTTON_ID = 'referrercontrol-button';
-    const STYLE_URI = 'chrome://referrercontrol/skin/browser.css';
-    const PREF_BRANCH = 'extensions.referrercontrol.';
+    var EXTENSION_ID = 'referrercontrol@qixinglu.com';
+    var EXTENSION_NAME = 'Referrer Control';
+    var BUTTON_ID = 'referrercontrol-button';
+    var STYLE_URI = 'chrome://referrercontrol/skin/browser.css';
+    var PREF_BRANCH = 'extensions.referrercontrol.';
 
     // I want to rename to "rules" in later version
     // but can't break compatible, maybe I need write migrate code.
-    const PREF_NAME_RULES = 'customRules';
+    var PREF_NAME_RULES = 'customRules';
 
-    const POLICIES = [
+    var POLICIES = [
         [0, 'skip'],
         [1, 'remove'],
         [2, 'sourceHost'],
@@ -613,12 +613,12 @@ let ReferrerControl = function() {
         [5, 'targetDomain'],
         [6, 'targetUrl']
     ];
-    const ACTIVATED_TOOLTIPTEXT = EXTENSION_NAME + '\n' +
+    var ACTIVATED_TOOLTIPTEXT = EXTENSION_NAME + '\n' +
                                   _('activatedTooltip');
-    const DEACTIVATED_TOOLTIPTEXT = EXTENSION_NAME + '\n' +
+    var DEACTIVATED_TOOLTIPTEXT = EXTENSION_NAME + '\n' +
                                     _('deactivatedTooltip');
 
-    let config = {
+    var config = {
         firstRun: true,
         activated: true,
         ignoreBlankSource: true,
@@ -627,12 +627,12 @@ let ReferrerControl = function() {
         defaultPolicy: 1, // the "remove" policy
         rules: [],
     };
-    let pref = Pref(PREF_BRANCH);
+    var pref = Pref(PREF_BRANCH);
 
-    let prefObserver;
-    let reqObserver;
-    let extObserver;
-    let toolbarButtons;
+    var prefObserver;
+    var reqObserver;
+    var extObserver;
+    var toolbarButtons;
 
     prefObserver = {
 
@@ -650,7 +650,7 @@ let ReferrerControl = function() {
         },
 
         initBool: function(name) {
-            let value = pref.getBool(name);
+            var value = pref.getBool(name);
             if (value === null) {
                 pref.setBool(name, config[name]);
             } else {
@@ -658,7 +658,7 @@ let ReferrerControl = function() {
             }
         },
         initInt: function(name) {
-            let value = pref.getInt(name);
+            var value = pref.getInt(name);
             if (value === null) {
                 pref.setInt(name, config[name]);
             } else {
@@ -666,7 +666,7 @@ let ReferrerControl = function() {
             }
         },
         initComplex: function(name, pref_name, converter, defaultValue) {
-            let text = pref.getString(pref_name);
+            var text = pref.getString(pref_name);
             if (text === null) {
                 pref.setString(name, defaultValue);
                 config[name] = converter(defaultValue);
@@ -676,26 +676,26 @@ let ReferrerControl = function() {
         },
 
         loadBool: function(name) {
-            let value = pref.getBool(name);
+            var value = pref.getBool(name);
             if (value !== null) {
                 config[name] = value;
             }
         },
         loadInt: function(name) {
-            let value = pref.getInt(name);
+            var value = pref.getInt(name);
             if (value !== null) {
                 config[name] = value;
             }
         },
         loadComplex: function(name, pref_name, converter) {
-            let text = pref.getString(pref_name);
+            var text = pref.getString(pref_name);
             if (text !== null) {
                 config[name] = converter(text);
             }
         },
 
         initConfig: function() {
-            let {initBool, initInt, initComplex} = this;
+            var {initBool, initInt, initComplex} = this;
             initBool('firstRun');
             initBool('activated');
             initBool('ignoreBlankSource');
@@ -705,7 +705,7 @@ let ReferrerControl = function() {
             initComplex('rules', PREF_NAME_RULES, ruleCompiler, '[]');
         },
         reloadConfig: function() {
-            let {loadBool, loadInt, loadComplex} = this;
+            var {loadBool, loadInt, loadComplex} = this;
             loadBool('firstRun');
             loadBool('activated');
             loadBool('ignoreBlankSource');
@@ -731,7 +731,7 @@ let ReferrerControl = function() {
 
         observe: function(subject, topic, data) {
             try {
-                let channel = subject.QueryInterface(Ci.nsIHttpChannel);
+                var channel = subject.QueryInterface(Ci.nsIHttpChannel);
                 this.override(channel);
             } catch(error) {
                 trace(error);
@@ -759,7 +759,7 @@ let ReferrerControl = function() {
         },
 
         override: function(channel) {
-            let {
+            var {
                 ignoreBlankSource,
                 ignoreSameDomains,
                 strictSameDomains,
@@ -771,8 +771,8 @@ let ReferrerControl = function() {
                 return;
             }
 
-            let targetURI = channel.URI;
-            let sourceURI = null;
+            var targetURI = channel.URI;
+            var sourceURI = null;
 
             if (channel.referrer) {
                 sourceURI = channel.referrer;
@@ -786,7 +786,7 @@ let ReferrerControl = function() {
             }
 
             // now find override referrer string
-            let referrer = Referrer.getFor(
+            var referrer = Referrer.getFor(
                                 sourceURI, targetURI, rules, defaultPolicy);
             if (referrer === null) {
                 return;
@@ -805,8 +805,8 @@ let ReferrerControl = function() {
                 return;
             }
             try {
-                let document = subject.QueryInterface(Ci.nsIDOMDocument);
-                let button = document.getElementById('rule-preferences');
+                var document = subject.QueryInterface(Ci.nsIDOMDocument);
+                var button = document.getElementById('rule-preferences');
                 button.addEventListener('command', this.openRuleDialog);
             } catch(error) {
                 trace(error);
@@ -827,12 +827,12 @@ let ReferrerControl = function() {
         },
 
         openRuleDialog: function(event) {
-            let dialog = Utils.getMostRecentWindow(
+            var dialog = Utils.getMostRecentWindow(
                                         'ReferrerControl:Rule Preferences');
             if (dialog) {
                 dialog.focus();
             } else {
-                let window = event.target.ownerDocument.defaultView;
+                var window = event.target.ownerDocument.defaultView;
                 window.openDialog(
                     'chrome://referrercontrol/content/rule_preferences.xul', '',
                     'chrome,titlebar,toolbar,centerscreen,resizable,dialog=no');
@@ -843,10 +843,10 @@ let ReferrerControl = function() {
     toolbarButtons = {
 
         refresh: function() {
-            let {activated, defaultPolicy} = config;
+            var {activated, defaultPolicy} = config;
             BrowserManager.run(function(window) {
-                let document = window.document;
-                let button = document.getElementById(BUTTON_ID);
+                var document = window.document;
+                var button = document.getElementById(BUTTON_ID);
                 if (activated) {
                     button.removeAttribute('disabled');
                     button.setAttribute('tooltiptext', ACTIVATED_TOOLTIPTEXT);
@@ -854,9 +854,9 @@ let ReferrerControl = function() {
                     button.setAttribute('disabled', 'yes');
                     button.setAttribute('tooltiptext', DEACTIVATED_TOOLTIPTEXT);
                 }
-                let menuitems = button.getElementsByTagName('menuitem');
-                for (let menuitem of menuitems) {
-                    let value = parseInt(menuitem.getAttribute('value'));
+                var menuitems = button.getElementsByTagName('menuitem');
+                for (var menuitem of menuitems) {
+                    var value = parseInt(menuitem.getAttribute('value'));
                     menuitem.setAttribute('checked', value === defaultPolicy);
                 }
             });
@@ -873,10 +873,10 @@ let ReferrerControl = function() {
         },
 
         createButtonCommand: function() {
-            let that = this; // damn it
+            var that = this; // damn it
             return function(event) {
 
-                let target = event.target;
+                var target = event.target;
 
                 // click menuitem auto activate button
                 if (target === this) {
@@ -899,10 +899,10 @@ let ReferrerControl = function() {
         },
 
         createInstance: function(window) {
-            let document = window.document;
+            var document = window.document;
 
-            let createButton = function() {
-                let attrs = {
+            var createButton = function() {
+                var attrs = {
                     id: BUTTON_ID,
                     'class': 'toolbarbutton-1 chromeclass-toolbar-additional',
                     type: 'menu-button',
@@ -916,27 +916,27 @@ let ReferrerControl = function() {
                     attrs.disabled = 'yes';
                     attrs.tooltiptext = DEACTIVATED_TOOLTIPTEXT;
                 }
-                let button = document.createElementNS(NS_XUL, 'toolbarbutton');
+                var button = document.createElementNS(NS_XUL, 'toolbarbutton');
                 Utils.setAttrs(button, attrs);
                 return button;
             };
 
-            let createMenupopup = function() {
+            var createMenupopup = function() {
                 return document.createElementNS(NS_XUL, 'menupopup');
             };
 
-            let createPrefMenuitem = function() {
-                let menuitem = document.createElementNS(NS_XUL, 'menuitem');
+            var createPrefMenuitem = function() {
+                var menuitem = document.createElementNS(NS_XUL, 'menuitem');
                 menuitem.setAttribute('class', 'pref');
                 menuitem.setAttribute('label', _('openRulePreferences') + '...');
                 return menuitem;
             };
 
-            let createPolicyMenuitems = function() {
-                let {defaultPolicy} = config;
-                let menuitems = [];
-                for (let [code, name] of POLICIES) {
-                    let attrs = {
+            var createPolicyMenuitems = function() {
+                var {defaultPolicy} = config;
+                var menuitems = [];
+                for (var [code, name] of POLICIES) {
+                    var attrs = {
                         'class': 'policy',
                         label: _(name),
                         value: code,
@@ -945,45 +945,45 @@ let ReferrerControl = function() {
                         tooltiptext: _(name + 'Tooltip'),
                         checked: code === defaultPolicy,
                     };
-                    let menuitem = document.createElementNS(NS_XUL, 'menuitem');
+                    var menuitem = document.createElementNS(NS_XUL, 'menuitem');
                     Utils.setAttrs(menuitem, attrs);
                     menuitems.push(menuitem);
                 }
                 return menuitems;
             };
 
-            let menupopup = createMenupopup();
+            var menupopup = createMenupopup();
 
-            let prefMenuitem = createPrefMenuitem();
+            var prefMenuitem = createPrefMenuitem();
             prefMenuitem.addEventListener('command',
                                           this.onPrefMenuitemCommand);
-            let menusep = document.createElementNS(NS_XUL, 'menuseparator');
+            var menusep = document.createElementNS(NS_XUL, 'menuseparator');
 
             menupopup.appendChild(prefMenuitem);
             menupopup.appendChild(menusep);
 
-            for (let menuitem of createPolicyMenuitems()) {
+            for (var menuitem of createPolicyMenuitems()) {
                 menuitem.addEventListener('command',
                                           this.onPolicyMenuitemCommand);
                 menupopup.appendChild(menuitem);
             }
 
-            let button = createButton();
+            var button = createButton();
             button.addEventListener('command', this.createButtonCommand());
             button.appendChild(menupopup);
             return button;
         }
     };
 
-    let insertToolbarButton = function(window) {
-        let button = toolbarButtons.createInstance(window);
+    var insertToolbarButton = function(window) {
+        var button = toolbarButtons.createInstance(window);
         try {
             ToolbarManager.addWidget(window, button, config.firstRun);
         } catch(error) {
             trace(error);
         }
     };
-    let removeToolbarButton = function(window) {
+    var removeToolbarButton = function(window) {
         try {
             ToolbarManager.removeWidget(window, BUTTON_ID);
         } catch(error) {
@@ -991,7 +991,7 @@ let ReferrerControl = function() {
         }
     };
 
-    let initialize = function() {
+    var initialize = function() {
         prefObserver.initConfig();
         prefObserver.start();
         reqObserver.refresh();
@@ -1001,7 +1001,7 @@ let ReferrerControl = function() {
         BrowserManager.addListener(insertToolbarButton);
         StyleManager.load(STYLE_URI);
     };
-    let destory = function() {
+    var destory = function() {
         prefObserver.saveConfig();
         prefObserver.stop();
         reqObserver.stop();
@@ -1012,7 +1012,7 @@ let ReferrerControl = function() {
         StyleManager.destory();
     };
 
-    let exports = {
+    var exports = {
         initialize: initialize,
         destory: destory,
     }
@@ -1021,17 +1021,17 @@ let ReferrerControl = function() {
 
 /* bootstrap */
 
-let referrerControl;
+var referrerControl;
 
-let install = function(data, reason) {};
-let uninstall = function(data, reason) {};
+var install = function(data, reason) {};
+var uninstall = function(data, reason) {};
 
-let startup = function(data, reason) {
+var startup = function(data, reason) {
     loadLocalization();
     referrerControl = ReferrerControl();
     referrerControl.initialize();
 };
 
-let shutdown = function(data, reason) {
+var shutdown = function(data, reason) {
     referrerControl.destory();
 };
