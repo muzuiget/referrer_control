@@ -1,7 +1,5 @@
-content  referrercontrol  content/
-skin     referrercontrol  classic/1.0  skin/
-locale   referrercontrol  en-US        locale/en-US/
-locale   referrercontrol  zh-CN        locale/zh-CN/
-locale   referrercontrol  zh-TW        locale/zh-TW/
-locale   referrercontrol  fr           locale/fr/
-locale   referrercontrol  ro           locale/ro/
+content  {{ idname }}  content/
+skin     {{ idname }}  classic/1.0  skin/
+{% for lang in langs -%}
+locale   {{ idname }}  {{ lang }}   locale/{{ lang }}/
+{% endfor %}
