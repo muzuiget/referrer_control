@@ -1,0 +1,22 @@
+{
+  "name": "referrer_control",
+  "version": "0.5.0",
+  "private": true,
+  "devDependencies": {
+    "commander": "2.9.0",
+    "del": "2.2.2",
+    "gulp": "3.9.1",
+    "gulp-eslint": "3.0.1",
+    "gulp-nunjucks": "3.0.0",
+    "gulp-process": "0.1.2",
+    "gulp-rename": "1.2.2",
+    "gulp-util": "3.0.8",
+    "gulp-zip": "4.0.0",
+    "lazypipe": "1.0.1",
+    "properties-reader": "0.0.15",
+    "run-sequence": "1.2.2"
+  },
+  "scripts": {
+    "build": "gulp build"
+  }
+}
