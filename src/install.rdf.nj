@@ -4,10 +4,10 @@
 <Description about="urn:mozilla:install-manifest">
 
     <em:id>referrercontrol@qixinglu.com</em:id>
-    <em:version>0.4.6</em:version>
+    <em:version>{{ version }}</em:version>
     <em:type>2</em:type>
     <em:bootstrap>true</em:bootstrap>
-    <em:unpack>false</em:unpack>
+    <em:unpack>{{ unpack }}</em:unpack>
 
     <!-- Front End MetaData -->
     <em:name>Referrer Control</em:name>
