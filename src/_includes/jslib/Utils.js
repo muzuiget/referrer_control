@@ -1,15 +1,15 @@
 var Utils = (function() {
 
-    var etldService = Cc['@mozilla.org/network/effective-tld-service;1']
+    const etldService = Cc['@mozilla.org/network/effective-tld-service;1']
                            .getService(Ci.nsIEffectiveTLDService);
-    var sbService = Cc['@mozilla.org/intl/stringbundle;1']
+    const sbService = Cc['@mozilla.org/intl/stringbundle;1']
                          .getService(Ci.nsIStringBundleService);
-    var windowMediator = Cc['@mozilla.org/appshell/window-mediator;1']
+    const windowMediator = Cc['@mozilla.org/appshell/window-mediator;1']
                               .getService(Ci.nsIWindowMediator);
 
-    var wildcard2RegExp = function(pattern) {
-        var firstChar = pattern.charAt(0);
-        var lastChat = pattern.charAt(pattern.length - 1);
+    let wildcard2RegExp = function(pattern) {
+        let firstChar = pattern.charAt(0);
+        let lastChat = pattern.charAt(pattern.length - 1);
         if (firstChar + lastChat === '//') {
             return new RegExp(pattern.slice(1, -1));
         } else {
@@ -17,10 +17,10 @@ var Utils = (function() {
             return new RegExp(pattern);
         }
     };
-    var fakeTrueTest = {test: function() true};
+    let fakeTrueTest = {test: function() true};
 
-    var getDomain = function(uri) {
-        var domain;
+    let getDomain = function(uri) {
+        let domain;
         try {
             domain = etldService.getBaseDomain(uri);
         } catch(error) {
@@ -28,7 +28,7 @@ var Utils = (function() {
         }
         return domain;
     };
-    var isSameDomains = function(uri1, uri2, strict) {
+    let isSameDomains = function(uri1, uri2, strict) {
         if (strict) {
             return uri1.host === uri2.host;
         } else {
@@ -36,21 +36,21 @@ var Utils = (function() {
         }
     };
 
-    var localization = function(id, name) {
-        var uri = 'chrome://' + id + '/locale/' + name + '.properties';
+    let localization = function(id, name) {
+        let uri = 'chrome://' + id + '/locale/' + name + '.properties';
         return sbService.createBundle(uri).GetStringFromName;
     };
 
-    var setAttrs = function(widget, attrs) {
-        for (var [key, value] in Iterator(attrs)) {
+    let setAttrs = function(widget, attrs) {
+        for (let [key, value] in Iterator(attrs)) {
             widget.setAttribute(key, value);
         }
     };
 
-    var getMostRecentWindow = windowMediator.getMostRecentWindow
+    let getMostRecentWindow = windowMediator.getMostRecentWindow
                                             .bind(windowMediator);
 
-    var exports = {
+    let exports = {
         wildcard2RegExp: wildcard2RegExp,
         fakeTrueTest: fakeTrueTest,
         getDomain: getDomain,

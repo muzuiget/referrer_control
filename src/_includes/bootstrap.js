@@ -10,7 +10,7 @@ var ruleCompiler = function(text) {
         return [];
     }
 
-    var items;
+    let items;
     try {
         items = JSON.parse(text);
     } catch(error) {
@@ -18,13 +18,13 @@ var ruleCompiler = function(text) {
         return [];
     }
 
-    var toRegExp = Utils.wildcard2RegExp;
-    var fakeRegExp = Utils.fakeTrueTest;
+    let toRegExp = Utils.wildcard2RegExp;
+    let fakeRegExp = Utils.fakeTrueTest;
 
-    var rules = [];
-    for (var item of items) {
-        var {source, target, value} = item;
-        var rule = {};
+    let rules = [];
+    for (let item of items) {
+        let {source, target, value} = item;
+        let rule = {};
 
         rule.source = source && toRegExp(source) || fakeRegExp;
         rule.target = target && toRegExp(target) || fakeRegExp;
@@ -42,7 +42,7 @@ var ruleCompiler = function(text) {
 
 var Referrer = (function() {
 
-    var toUrl = function(sourceURI, targetURI, policy) {
+    let toUrl = function(sourceURI, targetURI, policy) {
         // When sourceURI is null, that is original Referer is blank.
         // So policy "source host" and "source domain" is meaningless,
         // just treat as "remove".
@@ -50,7 +50,7 @@ var Referrer = (function() {
             return '';
         }
 
-        var value;
+        let value;
         switch (policy) {
             case 0: // skip
                 return null;
@@ -74,11 +74,11 @@ var Referrer = (function() {
                 return null;
         }
 
-        var scheme = sourceURI && sourceURI.scheme || targetURI.scheme;
+        let scheme = sourceURI && sourceURI.scheme || targetURI.scheme;
         return scheme + '://' + value + '/';
     };
 
-    var debugResult = function(sourceURI, targetURI, result) {
+    let debugResult = function(sourceURI, targetURI, result) {
         console.group();
         console.log('source', sourceURI && sourceURI.spec || ''),
         console.log('target', targetURI.spec),
@@ -86,11 +86,11 @@ var Referrer = (function() {
         console.groupEnd();
     };
 
-    var getFor = function(sourceURI, targetURI, rules, policy) {
-        for (var rule of rules) {
-            var {source, target, isUrl, url, code} = rule;
+    let getFor = function(sourceURI, targetURI, rules, policy) {
+        for (let rule of rules) {
+            let {source, target, isUrl, url, code} = rule;
 
-            var isMatch;
+            let isMatch;
             if (sourceURI) {
                 isMatch = source.test(sourceURI.spec) &&
                                 target.test(targetURI.spec);
@@ -110,13 +110,13 @@ var Referrer = (function() {
         return toUrl(sourceURI, targetURI, policy);
     };
 
-    var debugGetFor = function(sourceURI, targetURI, rules, policy) {
-        var result = getFor(sourceURI, targetURI, rules, policy);
+    let debugGetFor = function(sourceURI, targetURI, rules, policy) {
+        let result = getFor(sourceURI, targetURI, rules, policy);
         debugResult(sourceURI, targetURI, result);
         return result;
     };
 
-    var exports = {
+    let exports = {
         //getFor: getFor,
         getFor: debugGetFor,
     }
@@ -125,17 +125,17 @@ var Referrer = (function() {
 
 var ReferrerControl = function() {
 
-    var EXTENSION_ID = 'referrercontrol@qixinglu.com';
-    var EXTENSION_NAME = 'Referrer Control';
-    var BUTTON_ID = 'referrercontrol-button';
-    var STYLE_URI = 'chrome://referrercontrol/skin/browser.css';
-    var PREF_BRANCH = 'extensions.referrercontrol.';
+    const EXTENSION_ID = 'referrercontrol@qixinglu.com';
+    const EXTENSION_NAME = 'Referrer Control';
+    const BUTTON_ID = 'referrercontrol-button';
+    const STYLE_URI = 'chrome://referrercontrol/skin/browser.css';
+    const PREF_BRANCH = 'extensions.referrercontrol.';
 
     // I want to rename to "rules" in later version
     // but can't break compatible, maybe I need write migrate code.
-    var PREF_NAME_RULES = 'customRules';
+    const PREF_NAME_RULES = 'customRules';
 
-    var POLICIES = [
+    const POLICIES = [
         [0, 'skip'],
         [1, 'remove'],
         [2, 'sourceHost'],
@@ -144,12 +144,12 @@ var ReferrerControl = function() {
         [5, 'targetDomain'],
         [6, 'targetUrl']
     ];
-    var ACTIVATED_TOOLTIPTEXT = EXTENSION_NAME + '\n' +
+    const ACTIVATED_TOOLTIPTEXT = EXTENSION_NAME + '\n' +
                                   _('activatedTooltip');
-    var DEACTIVATED_TOOLTIPTEXT = EXTENSION_NAME + '\n' +
+    const DEACTIVATED_TOOLTIPTEXT = EXTENSION_NAME + '\n' +
                                     _('deactivatedTooltip');
 
-    var config = {
+    let config = {
         firstRun: true,
         activated: true,
         ignoreBlankSource: true,
@@ -158,12 +158,12 @@ var ReferrerControl = function() {
         defaultPolicy: 1, // the "remove" policy
         rules: [],
     };
-    var pref = Pref(PREF_BRANCH);
+    let pref = Pref(PREF_BRANCH);
 
-    var prefObserver;
-    var reqObserver;
-    var extObserver;
-    var toolbarButtons;
+    let prefObserver;
+    let reqObserver;
+    let extObserver;
+    let toolbarButtons;
 
     prefObserver = {
 
@@ -181,7 +181,7 @@ var ReferrerControl = function() {
         },
 
         initBool: function(name) {
-            var value = pref.getBool(name);
+            let value = pref.getBool(name);
             if (value === null) {
                 pref.setBool(name, config[name]);
             } else {
@@ -189,7 +189,7 @@ var ReferrerControl = function() {
             }
         },
         initInt: function(name) {
-            var value = pref.getInt(name);
+            let value = pref.getInt(name);
             if (value === null) {
                 pref.setInt(name, config[name]);
             } else {
@@ -197,7 +197,7 @@ var ReferrerControl = function() {
             }
         },
         initComplex: function(name, pref_name, converter, defaultValue) {
-            var text = pref.getString(pref_name);
+            let text = pref.getString(pref_name);
             if (text === null) {
                 pref.setString(name, defaultValue);
                 config[name] = converter(defaultValue);
@@ -207,26 +207,26 @@ var ReferrerControl = function() {
         },
 
         loadBool: function(name) {
-            var value = pref.getBool(name);
+            let value = pref.getBool(name);
             if (value !== null) {
                 config[name] = value;
             }
         },
         loadInt: function(name) {
-            var value = pref.getInt(name);
+            let value = pref.getInt(name);
             if (value !== null) {
                 config[name] = value;
             }
         },
         loadComplex: function(name, pref_name, converter) {
-            var text = pref.getString(pref_name);
+            let text = pref.getString(pref_name);
             if (text !== null) {
                 config[name] = converter(text);
             }
         },
 
         initConfig: function() {
-            var {initBool, initInt, initComplex} = this;
+            let {initBool, initInt, initComplex} = this;
             initBool('firstRun');
             initBool('activated');
             initBool('ignoreBlankSource');
@@ -236,7 +236,7 @@ var ReferrerControl = function() {
             initComplex('rules', PREF_NAME_RULES, ruleCompiler, '[]');
         },
         reloadConfig: function() {
-            var {loadBool, loadInt, loadComplex} = this;
+            let {loadBool, loadInt, loadComplex} = this;
             loadBool('firstRun');
             loadBool('activated');
             loadBool('ignoreBlankSource');
@@ -262,7 +262,7 @@ var ReferrerControl = function() {
 
         observe: function(subject, topic, data) {
             try {
-                var channel = subject.QueryInterface(Ci.nsIHttpChannel);
+                let channel = subject.QueryInterface(Ci.nsIHttpChannel);
                 this.override(channel);
             } catch(error) {
                 trace(error);
@@ -290,7 +290,7 @@ var ReferrerControl = function() {
         },
 
         override: function(channel) {
-            var {
+            let {
                 ignoreBlankSource,
                 ignoreSameDomains,
                 strictSameDomains,
@@ -302,8 +302,8 @@ var ReferrerControl = function() {
                 return;
             }
 
-            var targetURI = channel.URI;
-            var sourceURI = null;
+            let targetURI = channel.URI;
+            let sourceURI = null;
 
             if (channel.referrer) {
                 sourceURI = channel.referrer;
@@ -317,7 +317,7 @@ var ReferrerControl = function() {
             }
 
             // now find override referrer string
-            var referrer = Referrer.getFor(
+            let referrer = Referrer.getFor(
                                 sourceURI, targetURI, rules, defaultPolicy);
             if (referrer === null) {
                 return;
@@ -336,8 +336,8 @@ var ReferrerControl = function() {
                 return;
             }
             try {
-                var document = subject.QueryInterface(Ci.nsIDOMDocument);
-                var button = document.getElementById('rule-preferences');
+                let document = subject.QueryInterface(Ci.nsIDOMDocument);
+                let button = document.getElementById('rule-preferences');
                 button.addEventListener('command', this.openRuleDialog);
             } catch(error) {
                 trace(error);
@@ -358,12 +358,12 @@ var ReferrerControl = function() {
         },
 
         openRuleDialog: function(event) {
-            var dialog = Utils.getMostRecentWindow(
+            let dialog = Utils.getMostRecentWindow(
                                         'ReferrerControl:Rule Preferences');
             if (dialog) {
                 dialog.focus();
             } else {
-                var window = event.target.ownerDocument.defaultView;
+                let window = event.target.ownerDocument.defaultView;
                 window.openDialog(
                     'chrome://referrercontrol/content/rule_preferences.xul', '',
                     'chrome,titlebar,toolbar,centerscreen,resizable,dialog=no');
@@ -374,10 +374,10 @@ var ReferrerControl = function() {
     toolbarButtons = {
 
         refresh: function() {
-            var {activated, defaultPolicy} = config;
+            let {activated, defaultPolicy} = config;
             BrowserManager.run(function(window) {
-                var document = window.document;
-                var button = document.getElementById(BUTTON_ID);
+                let document = window.document;
+                let button = document.getElementById(BUTTON_ID);
                 if (activated) {
                     button.removeAttribute('disabled');
                     button.setAttribute('tooltiptext', ACTIVATED_TOOLTIPTEXT);
@@ -385,9 +385,9 @@ var ReferrerControl = function() {
                     button.setAttribute('disabled', 'yes');
                     button.setAttribute('tooltiptext', DEACTIVATED_TOOLTIPTEXT);
                 }
-                var menuitems = button.getElementsByTagName('menuitem');
-                for (var menuitem of menuitems) {
-                    var value = parseInt(menuitem.getAttribute('value'));
+                let menuitems = button.getElementsByTagName('menuitem');
+                for (let menuitem of menuitems) {
+                    let value = parseInt(menuitem.getAttribute('value'));
                     menuitem.setAttribute('checked', value === defaultPolicy);
                 }
             });
@@ -404,10 +404,10 @@ var ReferrerControl = function() {
         },
 
         createButtonCommand: function() {
-            var that = this; // damn it
+            let that = this; // damn it
             return function(event) {
 
-                var target = event.target;
+                let target = event.target;
 
                 // click menuitem auto activate button
                 if (target === this) {
@@ -430,10 +430,10 @@ var ReferrerControl = function() {
         },
 
         createInstance: function(window) {
-            var document = window.document;
+            let document = window.document;
 
-            var createButton = function() {
-                var attrs = {
+            let createButton = function() {
+                let attrs = {
                     id: BUTTON_ID,
                     'class': 'toolbarbutton-1 chromeclass-toolbar-additional',
                     type: 'menu-button',
@@ -447,27 +447,27 @@ var ReferrerControl = function() {
                     attrs.disabled = 'yes';
                     attrs.tooltiptext = DEACTIVATED_TOOLTIPTEXT;
                 }
-                var button = document.createElementNS(NS_XUL, 'toolbarbutton');
+                let button = document.createElementNS(NS_XUL, 'toolbarbutton');
                 Utils.setAttrs(button, attrs);
                 return button;
             };
 
-            var createMenupopup = function() {
+            let createMenupopup = function() {
                 return document.createElementNS(NS_XUL, 'menupopup');
             };
 
-            var createPrefMenuitem = function() {
-                var menuitem = document.createElementNS(NS_XUL, 'menuitem');
+            let createPrefMenuitem = function() {
+                let menuitem = document.createElementNS(NS_XUL, 'menuitem');
                 menuitem.setAttribute('class', 'pref');
                 menuitem.setAttribute('label', _('openRulePreferences') + '...');
                 return menuitem;
             };
 
-            var createPolicyMenuitems = function() {
-                var {defaultPolicy} = config;
-                var menuitems = [];
-                for (var [code, name] of POLICIES) {
-                    var attrs = {
+            let createPolicyMenuitems = function() {
+                let {defaultPolicy} = config;
+                let menuitems = [];
+                for (let [code, name] of POLICIES) {
+                    let attrs = {
                         'class': 'policy',
                         label: _(name),
                         value: code,
@@ -476,45 +476,45 @@ var ReferrerControl = function() {
                         tooltiptext: _(name + 'Tooltip'),
                         checked: code === defaultPolicy,
                     };
-                    var menuitem = document.createElementNS(NS_XUL, 'menuitem');
+                    let menuitem = document.createElementNS(NS_XUL, 'menuitem');
                     Utils.setAttrs(menuitem, attrs);
                     menuitems.push(menuitem);
                 }
                 return menuitems;
             };
 
-            var menupopup = createMenupopup();
+            let menupopup = createMenupopup();
 
-            var prefMenuitem = createPrefMenuitem();
+            let prefMenuitem = createPrefMenuitem();
             prefMenuitem.addEventListener('command',
                                           this.onPrefMenuitemCommand);
-            var menusep = document.createElementNS(NS_XUL, 'menuseparator');
+            let menusep = document.createElementNS(NS_XUL, 'menuseparator');
 
             menupopup.appendChild(prefMenuitem);
             menupopup.appendChild(menusep);
 
-            for (var menuitem of createPolicyMenuitems()) {
+            for (let menuitem of createPolicyMenuitems()) {
                 menuitem.addEventListener('command',
                                           this.onPolicyMenuitemCommand);
                 menupopup.appendChild(menuitem);
             }
 
-            var button = createButton();
+            let button = createButton();
             button.addEventListener('command', this.createButtonCommand());
             button.appendChild(menupopup);
             return button;
         }
     };
 
-    var insertToolbarButton = function(window) {
-        var button = toolbarButtons.createInstance(window);
+    let insertToolbarButton = function(window) {
+        let button = toolbarButtons.createInstance(window);
         try {
             ToolbarManager.addWidget(window, button, config.firstRun);
         } catch(error) {
             trace(error);
         }
     };
-    var removeToolbarButton = function(window) {
+    let removeToolbarButton = function(window) {
         try {
             ToolbarManager.removeWidget(window, BUTTON_ID);
         } catch(error) {
@@ -522,7 +522,7 @@ var ReferrerControl = function() {
         }
     };
 
-    var initialize = function() {
+    let initialize = function() {
         prefObserver.initConfig();
         prefObserver.start();
         reqObserver.refresh();
@@ -532,7 +532,7 @@ var ReferrerControl = function() {
         BrowserManager.addListener(insertToolbarButton);
         StyleManager.load(STYLE_URI);
     };
-    var destory = function() {
+    let destory = function() {
         prefObserver.saveConfig();
         prefObserver.stop();
         reqObserver.stop();
@@ -543,7 +543,7 @@ var ReferrerControl = function() {
         StyleManager.destory();
     };
 
-    var exports = {
+    let exports = {
         initialize: initialize,
         destory: destory,
     }

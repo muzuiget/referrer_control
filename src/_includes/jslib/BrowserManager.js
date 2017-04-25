@@ -1,15 +1,15 @@
 var BrowserManager = (function() {
 
-    var windowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1']
+    const windowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1']
                              .getService(Ci.nsIWindowWatcher);
 
-    var BROWSER_URI = 'chrome://browser/content/browser.xul';
+    const BROWSER_URI = 'chrome://browser/content/browser.xul';
 
-    var listeners = [];
+    let listeners = [];
 
-    var onload = function(event) {
-        for (var listener of listeners) {
-            var window = event.currentTarget;
+    let onload = function(event) {
+        for (let listener of listeners) {
+            let window = event.currentTarget;
             window.removeEventListener('load', onload);
             if (window.location.href !== BROWSER_URI) {
                 return;
@@ -22,7 +22,7 @@ var BrowserManager = (function() {
         }
     };
 
-    var observer = {
+    let observer = {
         observe: function(window, topic, data) {
             if (topic !== 'domwindowopened') {
                 return;
@@ -31,10 +31,10 @@ var BrowserManager = (function() {
         }
     };
 
-    var run = function(func, uri) {
-        var enumerator = windowWatcher.getWindowEnumerator();
+    let run = function(func, uri) {
+        let enumerator = windowWatcher.getWindowEnumerator();
         while (enumerator.hasMoreElements()) {
-            var window = enumerator.getNext();
+            let window = enumerator.getNext();
             if (window.location.href !== BROWSER_URI) {
                 continue;
             }
@@ -47,29 +47,29 @@ var BrowserManager = (function() {
         }
     };
 
-    var addListener = function(listener) {
+    let addListener = function(listener) {
         listeners.push(listener);
     };
 
-    var removeListener = function(listener) {
-        var start = listeners.indexOf(listener);
+    let removeListener = function(listener) {
+        let start = listeners.indexOf(listener);
         if (start !== -1) {
             listeners.splice(start, 1);
         }
     };
 
-    var initialize = function() {
+    let initialize = function() {
         windowWatcher.registerNotification(observer);
     };
 
-    var destory = function() {
+    let destory = function() {
         windowWatcher.unregisterNotification(observer);
         listeners = null;
     };
 
     initialize();
 
-    var exports = {
+    let exports = {
         run: run,
         addListener: addListener,
         removeListener: removeListener,

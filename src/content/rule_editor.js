@@ -4,19 +4,19 @@ var {classes: Cc, interfaces: Ci} = Components;
 
 var _ = null;
 var loadLocalization = function() {
-    var stringbundle = document.getElementById('referrercontrol-strings');
+    let stringbundle = document.getElementById('referrercontrol-strings');
     _ = function(name) stringbundle.getString(name);
 };
 
 var refreshUI = function() {
-    var rule = window.arguments[1];
+    let rule = window.arguments[1];
 
     document.getElementById('source').value = rule.source;
     document.getElementById('target').value = rule.target;
 
-    var valueTextbox = document.getElementById('value-textbox');
-    var valueMenulist = document.getElementById('value-menulist');
-    var isUrl = typeof(rule.value) === 'string';
+    let valueTextbox = document.getElementById('value-textbox');
+    let valueMenulist = document.getElementById('value-menulist');
+    let isUrl = typeof(rule.value) === 'string';
     if (isUrl) {
         valueTextbox.removeAttribute('disabled');
         valueTextbox.value = rule.value;
@@ -30,25 +30,25 @@ var refreshUI = function() {
 };
 
 var doAccept = function() {
-    var source = document.getElementById('source').value.trim();
-    var target = document.getElementById('target').value.trim();
+    let source = document.getElementById('source').value.trim();
+    let target = document.getElementById('target').value.trim();
 
     if (source === '' && target === '') {
         alert(_('sourceAndTargetEmptyWarnning'));
         return false;
     }
 
-    var menuitemPolicy = document.getElementById('value-menulist').value.trim();
-    var customUrl = document.getElementById('value-textbox').value.trim();
-    var isUrl = menuitemPolicy === '-1';
+    let menuitemPolicy = document.getElementById('value-menulist').value.trim();
+    let customUrl = document.getElementById('value-textbox').value.trim();
+    let isUrl = menuitemPolicy === '-1';
     if (isUrl && customUrl === '') {
         alert(_('customUrlInvaildWarnning'));
         return false;
     }
 
-    var comment = document.getElementById('comment').value.trim();
+    let comment = document.getElementById('comment').value.trim();
 
-    var [result, rule] = window.arguments;
+    let [result, rule] = window.arguments;
     result.isAccept = true;
     rule.source = source;
     rule.target = target;
@@ -58,14 +58,14 @@ var doAccept = function() {
 };
 
 var doCancel = function(){
-    var result = window.arguments[0];
+    let result = window.arguments[0];
     result.isAccept = false;
     return true;
 };
 
 var onMenulistChange = function(menuitem) {
-    var valueTextbox = document.getElementById('value-textbox');
-    var isUrl = menuitem.value === '-1';
+    let valueTextbox = document.getElementById('value-textbox');
+    let isUrl = menuitem.value === '-1';
     if (isUrl) {
         valueTextbox.removeAttribute('disabled');
     } else {

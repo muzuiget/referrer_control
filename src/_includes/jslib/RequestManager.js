@@ -1,13 +1,13 @@
 var RequestManager = (function() {
 
-    var obsService = Cc['@mozilla.org/observer-service;1']
+    const obsService = Cc['@mozilla.org/observer-service;1']
                           .getService(Ci.nsIObserverService);
 
-    var REQUEST_TOPIC = 'http-on-modify-request';
+    const REQUEST_TOPIC = 'http-on-modify-request';
 
-    var observers = [];
+    let observers = [];
 
-    var addObserver = function(observer) {
+    let addObserver = function(observer) {
         try {
             obsService.addObserver(observer, REQUEST_TOPIC, false);
         } catch(error) {
@@ -16,7 +16,7 @@ var RequestManager = (function() {
         observers.push(observers);
     };
 
-    var removeObserver = function(observer) {
+    let removeObserver = function(observer) {
         try {
             obsService.removeObserver(observer, REQUEST_TOPIC, false);
         } catch(error) {
@@ -24,14 +24,14 @@ var RequestManager = (function() {
         }
     };
 
-    var destory = function() {
-        for (var observer of observers) {
+    let destory = function() {
+        for (let observer of observers) {
             removeObserver(observer);
         }
         observers = null;
     };
 
-    var exports = {
+    let exports = {
         addObserver: addObserver,
         removeObserver: removeObserver,
         destory: destory,
