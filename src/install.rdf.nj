@@ -8,6 +8,7 @@
     <em:type>2</em:type>
     <em:bootstrap>true</em:bootstrap>
     <em:unpack>{{ unpack }}</em:unpack>
+    <em:multiprocessCompatible>true</em:multiprocessCompatible>
 
     <!-- Front End MetaData -->
     <em:name>Referrer Control</em:name>
