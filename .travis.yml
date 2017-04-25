@@ -16,3 +16,14 @@ install:
 script:
     - npm run build
     - ls dist/xpi
+
+deploy:
+    provider: releases
+    api_key:
+        secure: irQPHlI5wLoKfFybjuysFOsw7v2QBM0ZJZNt/F0HZDZ5LMQ5doNs7SLkZ+HqufuNaKm4Zsbgmhlhfj21/YhZ6GsX5wXx4d5ubHDh5D5v/16/XI+lTtE3lLibnI6oPW7DzH7mGfwUT5DAT/8xLSzAwlfpVrakCJ0qT/6hUhH7vBQrfroKNWstTeBoLID5CUd82NAWblNqSfFnfVJYjQ5/BWKTwEDzE1FMWcI7ugs/sOZqVMxRiNPBIDhiC3QLZJvNz06y8zIuDmsYJ6IhxI+TlWmuITn1kq/1t79HvlEfASLw2LRlinyVvxkh5a7wpMITCCWQ2xNQMFUg3+fsX4dZPfCW+PBVjRBAxpVrQ4gQIUjgY8V7YXWtgQM/tx8yH5Xqx7uYFc/N2H5M/YcdTzKYedTo7kL0mbLbKU4owGRgZ5j939sQJdVszhpv7kuz1HFHH0cxYFI+Efbfe0UcnxhyZOKF3IqJZS5Jj8B4JFmv8D09TBpB95og9K9Rj9OinF7CPXiH6fsLvn4xF9e8O6z3uqkeFEsHfPS8G/wgVuxdfW9WF8VmcHhwe1bibuZFVofmGX/AeclCiww+uflz2YiP4Bsx/ftFBLdYmi8DON1FSbuUCLKTv6h7LchlHrP5moUgiYNLVxNod0iCNjKVQAp7LdV24dLcCcgcsKjOZHn9AkE=
+    file_glob: true
+    file: dist/xpi/*.xpi
+    overwrite: true
+    skip_cleanup: true
+    on:
+        tags: true
