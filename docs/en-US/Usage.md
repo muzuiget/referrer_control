@@ -136,4 +136,4 @@ For example, `http://*.google.com/*` is equal to `/^http:\/\/.*.google.com\/.*$/
 
 Any literal use of asterisks or question marks in wildcard expressions must be escaped with a backslash `\`.
 
-Note, if you use the wildcard expression `http://*.google.com/*`, it just matches the subdomains of the URL, not including the base domain itself (*google.com*).  If you want to match the base domain, you must add another rule and set the appropriate expression to `http://google.com/*`.  Alternatively, you can use regular expression `/^https?://(?:[^/]+\.)*google\.com/.*$/`; this will also match http and https protocols.
+Note, if you use the wildcard expression `http://*.google.com/*`, it just matches the subdomains of the URL, not including the base domain itself (*google.com*).  If you want to match the base domain, you must add another rule and set the appropriate expression to `http://google.com/*`.  Alternatively, you can use regular expression `/^https?:\/\/(?:[^/]+\.)*google\.com\/.*$/`; this will also match http and https protocols.
