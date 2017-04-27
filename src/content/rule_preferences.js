@@ -206,7 +206,7 @@ var updatePref = function() {
 var refreshUI = function() {
     // recreate the rule treeview
     let list = document.getElementById('rules-list');
-    list.innerHTML = '';
+    list.textContent = '';
     for (let i = 0; i < Rules.length; i += 1) {
         let treeitem = createTreeItem(i + 1, Rules[i]);
         list.appendChild(treeitem);
