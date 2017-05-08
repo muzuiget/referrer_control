@@ -3,6 +3,8 @@ Referrer Control
 
 [![Build Status](https://travis-ci.org/muzuiget/referrer_control.svg?branch=master)](https://travis-ci.org/muzuiget/referrer_control)
 
+**Note:** Because Firefox 57 will [drop support legacy add-ons](https://blog.mozilla.org/addons/2017/02/16/the-road-to-firefox-57-compatibility-milestones/), and I don't had any time to migrate it to WebExtensions yet, this project is in maintain mode, bugfix only, no new feature.
+
 ## Introduction
 
 Referrer Control is Firefox extension to control HTTP request referrer.
