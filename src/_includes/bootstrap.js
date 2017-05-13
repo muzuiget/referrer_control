@@ -117,9 +117,9 @@ var Referrer = (function() {
     };
 
     let exports = {
-        //getFor: getFor,
-        getFor: debugGetFor,
-    }
+        getFor: getFor,
+        //getFor: debugGetFor,
+    };
     return exports;
 })();
 
