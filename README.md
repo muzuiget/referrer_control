@@ -17,7 +17,7 @@ Referrer Control is Firefox extension to control HTTP request referrer.
 
 ## Docs
 
-* [Usage](docs/en-US/Usage.md)
+* [docs](docs/)
 
 ## License
 
